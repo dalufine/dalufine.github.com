@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta name="description" content="goback 跳过302方法12345678910111213141516171819202122232425@Override     public boolean onKeyDown(int keyCode, KeyEvent event) &amp;#123;        //判断是否可以返回操作        if (webView.canGoBack() &amp;amp;&amp;amp; event.ge">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Webview中的问题及解决">
+<meta property="og:url" content="http://dalufan.com/2015/12/20/android-webview-issues/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:description" content="goback 跳过302方法12345678910111213141516171819202122232425@Override     public boolean onKeyDown(int keyCode, KeyEvent event) &amp;#123;        //判断是否可以返回操作        if (webView.canGoBack() &amp;amp;&amp;amp; event.ge">
+<meta property="og:updated_time" content="2015-12-20T10:44:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Webview中的问题及解决">
+<meta name="twitter:description" content="goback 跳过302方法12345678910111213141516171819202122232425@Override     public boolean onKeyDown(int keyCode, KeyEvent event) &amp;#123;        //判断是否可以返回操作        if (webView.canGoBack() &amp;amp;&amp;amp; event.ge">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Webview中的问题及解决 | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-android-webview-issues" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/12/20/android-webview-issues/" class="article-date">
+      <time datetime="2015-12-20T10:44:12.000Z" itemprop="datePublished">2015-12-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Webview中的问题及解决
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/WebView/">WebView</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="goback-跳过302方法"><a href="#goback-跳过302方法" class="headerlink" title="goback 跳过302方法"></a>goback 跳过302方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onKeyDown</span><span class="params">(<span class="keyword">int</span> keyCode, KeyEvent event)</span> </span>&#123;</div><div class="line">        <span class="comment">//判断是否可以返回操作</span></div><div class="line">        <span class="keyword">if</span> (webView.canGoBack() &amp;&amp; event.getKeyCode() == KeyEvent.KEYCODE_BACK) &#123;</div><div class="line">            <span class="comment">//获取历史列表</span></div><div class="line">            WebBackForwardList mWebBackForwardList = webView</div><div class="line">                    .copyBackForwardList();</div><div class="line">            <span class="comment">//判断当前历史列表是否最顶端,其实canGoBack已经判断过</span></div><div class="line">            <span class="keyword">if</span> (mWebBackForwardList.getCurrentIndex() &gt; <span class="number">0</span>) &#123;</div><div class="line">                <span class="comment">//获取历史列表</span></div><div class="line">                String historyUrl = mWebBackForwardList.getItemAtIndex(</div><div class="line">                        mWebBackForwardList.getCurrentIndex() - <span class="number">1</span>).getUrl();</div><div class="line">                <span class="comment">//按照自己规则检查是否为可跳转地址</span></div><div class="line">                <span class="comment">//注意:这里可以根据自己逻辑循环判断,拿到可以跳转的那一个然后webView.goBackOrForward(steps)</span></div><div class="line">                <span class="comment">// steps为负数时，表示回退，正数表示向前</span></div><div class="line">                <span class="keyword">if</span> (!historyUrl.contains(<span class="string">"s.click.taobao.com"</span>)) &#123;</div><div class="line">                    <span class="comment">//执行跳转逻辑</span></div><div class="line">                    webView.goBack();</div><div class="line">                    <span class="comment">//webView.goBackOrForward(-1)</span></div><div class="line">                    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.onKeyDown(keyCode, event);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<a id="more"></a> 
+<h3 id="无法浏览AJAX网页问题"><a href="#无法浏览AJAX网页问题" class="headerlink" title="无法浏览AJAX网页问题"></a>无法浏览AJAX网页问题</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">webView.getSettings().setJavaScriptEnabled(<span class="keyword">true</span>);</div><div class="line">webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);</div><div class="line">webView.getSettings().setDomStorageEnabled(<span class="keyword">true</span>);</div><div class="line">webView.getSettings().setAllowFileAccess(<span class="keyword">true</span>);</div><div class="line">webView.getSettings().setUserAgentString(<span class="string">"User-Agent"</span>);</div></pre></td></tr></table></figure>
+<h3 id="为WebView自定义错误显示界面"><a href="#为WebView自定义错误显示界面" class="headerlink" title="为WebView自定义错误显示界面"></a>为WebView自定义错误显示界面</h3><p>覆写WebViewClient中的onReceivedError()方法:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** </span></div><div class="line"> * 显示自定义错误提示页面，用一个View覆盖在WebView </div><div class="line"> */  </div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">showErrorPage</span><span class="params">()</span> </span>&#123;  </div><div class="line">    LinearLayout webParentView = (LinearLayout)mWebView.getParent();  </div><div class="line">      </div><div class="line">    initErrorPage();  </div><div class="line">    <span class="keyword">while</span> (webParentView.getChildCount() &gt; <span class="number">1</span>) &#123;  </div><div class="line">        webParentView.removeViewAt(<span class="number">0</span>);  </div><div class="line">    &#125;  </div><div class="line">    LinearLayout.LayoutParams lp = <span class="keyword">new</span> LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT);  </div><div class="line">    webParentView.addView(mErrorView, <span class="number">0</span>, lp);  </div><div class="line">    mIsErrorPage = <span class="keyword">true</span>;  </div><div class="line">&#125;  </div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">hideErrorPage</span><span class="params">()</span> </span>&#123;  </div><div class="line">    LinearLayout webParentView = (LinearLayout)mWebView.getParent();  </div><div class="line">      </div><div class="line">    mIsErrorPage = <span class="keyword">false</span>;  </div><div class="line">    <span class="keyword">while</span> (webParentView.getChildCount() &gt; <span class="number">1</span>) &#123;  </div><div class="line">        webParentView.removeViewAt(<span class="number">0</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;  </div><div class="line">  </div><div class="line">  </div><div class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initErrorPage</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (mErrorView == <span class="keyword">null</span>) &#123;  </div><div class="line">        mErrorView = View.inflate(<span class="keyword">this</span>, R.layout.online_error, <span class="keyword">null</span>);  </div><div class="line">        Button button = (Button)mErrorView.findViewById(R.id.online_error_btn_retry);  </div><div class="line">        button.setOnClickListener(<span class="keyword">new</span> OnClickListener() &#123;  </div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;  </div><div class="line">                mWebView.reload();  </div><div class="line">            &#125;  </div><div class="line">        &#125;);  </div><div class="line">        mErrorView.setOnClickListener(<span class="keyword">null</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;  </div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceivedError</span><span class="params">(WebView view, <span class="keyword">int</span> errorCode, String description, String failingUrl)</span> </span>&#123;</div><div class="line">    mErrorView.setVisibility(View.VISIBLE);</div><div class="line">    <span class="keyword">super</span>.onReceivedError(view, errorCode, description, failingUrl);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="cookies清理："><a href="#cookies清理：" class="headerlink" title="cookies清理："></a>cookies清理：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">CookieSyncManager.createInstance(<span class="keyword">this</span>);   </div><div class="line">CookieSyncManager.getInstance().startSync();   </div><div class="line">CookieManager.getInstance().removeSessionCookie();</div></pre></td></tr></table></figure>
+<h3 id="清理cache-和历史记录"><a href="#清理cache-和历史记录" class="headerlink" title="清理cache 和历史记录"></a>清理cache 和历史记录</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">webView.clearCache(<span class="keyword">true</span>);   </div><div class="line">webView.clearHistory();</div></pre></td></tr></table></figure>
+<h3 id="判断WebView是否已经滚动到页面底端"><a href="#判断WebView是否已经滚动到页面底端" class="headerlink" title="判断WebView是否已经滚动到页面底端"></a>判断WebView是否已经滚动到页面底端</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//getScrollY()方法返回的是当前可见区域的顶端距整个页面顶端的距离,也就是当前内容滚动的距离.   </span></div><div class="line"><span class="comment">//getHeight()或者getBottom()方法都返回当前WebView 这个容器的高度   </span></div><div class="line"><span class="comment">//getContentHeight 返回的是整个html 的高度,但并不等同于当前整个页面的高度,因为WebView 有缩放功能, 所以当前整个页面的高度实际上应该是原始html 的高度再乘上缩放比例. 因此,更正后的结果,准确的判断方法应该是：   </span></div><div class="line"><span class="keyword">if</span>(WebView.getContentHeight*WebView.getScale() == (webview.getHeight()+WebView.getScrollY()))&#123; </div><div class="line"><span class="comment">//已经处于底端 </span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="处理WebView中的非超链接请求-如Ajax请求"><a href="#处理WebView中的非超链接请求-如Ajax请求" class="headerlink" title="处理WebView中的非超链接请求(如Ajax请求)"></a>处理WebView中的非超链接请求(如Ajax请求)</h3><p>有时候需要加上请求头，但是非超链接的请求，没有办法再<code>shouldOverrideUrlLoading</code>中拦截并用webView.loadUrl(String url,HashMap headers)方法添加请求头</p>
+<p>目前用了一个临时的办法解决：</p>
+<p>首先需要在url中加特殊标记/协议, 如在onWebViewResource方法中拦截对应的请求，然后将要添加的请求头，以get形式拼接到url末尾<br>在shouldInterceptRequest()方法中,可以拦截到所有的网页中资源请求，比如加载JS，图片以及Ajax请求等等</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SuppressLint</span>(<span class="string">"NewApi"</span>)  </div><div class="line"><span class="meta">@Override</span>  </div><div class="line"><span class="comment">//通知应用程序内核即将加载url制定的资源，应用程序可以返回本地的资源提供给内核，若本地处理返回数据，内核不从网络上获取数据。这个回调并不一定在UI线程执行，所以我们需要注意在这里操作View或者私有数据相关的动作。</span></div><div class="line"><span class="comment">//如果我们需要改变网页的背景，或者需要实现网页页面颜色定制化的需求，可以在这个回调时机处理。</span></div><div class="line"><span class="function"><span class="keyword">public</span> WebResourceResponse <span class="title">shouldInterceptRequest</span><span class="params">(WebView view,String url)</span> </span>&#123;  </div><div class="line">    <span class="comment">// 非超链接(如Ajax)请求无法直接添加请求头，现拼接到url末尾,这里拼接一个imei作为示例  </span></div><div class="line">  </div><div class="line">    String ajaxUrl = url;  </div><div class="line">    <span class="comment">// 如标识:req=ajax  </span></div><div class="line">    <span class="keyword">if</span> (url.contains(<span class="string">"req=ajax"</span>)) &#123;  </div><div class="line">       ajaxUrl += <span class="string">"&amp;imei="</span> + imei;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.shouldInterceptRequest(view, ajaxUrl);  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="在页面中先显示图片"><a href="#在页面中先显示图片" class="headerlink" title="在页面中先显示图片"></a>在页面中先显示图片</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span>  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLoadResource</span><span class="params">(WebView view, String url)</span> </span>&#123;  </div><div class="line">  mEventListener.onWebViewEvent(CustomWebView.<span class="keyword">this</span>, OnWebViewEventListener.EVENT_ON_LOAD_RESOURCE, url);  </div><div class="line">    <span class="keyword">if</span> (url.indexOf(<span class="string">".jpg"</span>) &gt; <span class="number">0</span>) &#123;  </div><div class="line">     hideProgress(); <span class="comment">//请求图片时即显示页面  </span></div><div class="line">     mEventListener.onWebViewEvent(CustomWebView.<span class="keyword">this</span>, OnWebViewEventListener.EVENT_ON_HIDE_PROGRESS, view.getUrl());  </div><div class="line">     &#125;  </div><div class="line">    <span class="keyword">super</span>.onLoadResource(view, url);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="屏蔽掉长按事件"><a href="#屏蔽掉长按事件" class="headerlink" title="屏蔽掉长按事件"></a>屏蔽掉长按事件</h3><p>因为webview长按时将会调用系统的复制控件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mWebView.setOnLongClickListener(<span class="keyword">new</span> OnLongClickListener() &#123;  </div><div class="line">            </div><div class="line">          <span class="meta">@Override</span>  </div><div class="line">          <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onLongClick</span><span class="params">(View v)</span> </span>&#123;  </div><div class="line">              <span class="keyword">return</span> <span class="keyword">true</span>;  </div><div class="line">          &#125;  </div><div class="line">      &#125;);</div></pre></td></tr></table></figure>
+<h3 id="加入-flash支持"><a href="#加入-flash支持" class="headerlink" title="加入 flash支持"></a>加入 flash支持</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">String temp = <span class="string">"&lt;html&gt;&lt;body bgcolor=\""</span> + <span class="string">"black"</span>  </div><div class="line">                + <span class="string">"\"&gt; &lt;br/&gt;&lt;embed src=\""</span> + url + <span class="string">"\" width=\""</span> + <span class="string">"100%"</span>  </div><div class="line">                + <span class="string">"\" height=\""</span> + <span class="string">"90%"</span> + <span class="string">"\" scale=\""</span> + <span class="string">"noscale"</span>  </div><div class="line">                + <span class="string">"\" type=\""</span> + <span class="string">"application/x-shockwave-flash"</span>  </div><div class="line">                + <span class="string">"\"&gt; &lt;/embed&gt;&lt;/body&gt;&lt;/html&gt;"</span>;  </div><div class="line">String mimeType = <span class="string">"text/html"</span>;  </div><div class="line">String encoding = <span class="string">"utf-8"</span>;  </div><div class="line">web.loadDataWithBaseURL(<span class="string">"null"</span>, temp, mimeType, encoding, <span class="string">""</span>);</div></pre></td></tr></table></figure>
+<h3 id="保留缩放功能但隐藏缩放控件"><a href="#保留缩放功能但隐藏缩放控件" class="headerlink" title="保留缩放功能但隐藏缩放控件"></a>保留缩放功能但隐藏缩放控件</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//setDisplayZoomControls是在Android 3.0中新增的API.</span></div><div class="line">mWebView.getSettings().setSupportZoom(<span class="keyword">true</span>);  </div><div class="line">        mWebView.getSettings().setBuiltInZoomControls(<span class="keyword">true</span>);  </div><div class="line">        <span class="keyword">if</span> (DeviceUtils.hasHoneycomb())  </div><div class="line">              mWebView.getSettings().setDisplayZoomControls(<span class="keyword">false</span>);</div></pre></td></tr></table></figure>
+<h3 id="onPageFinished"><a href="#onPageFinished" class="headerlink" title="onPageFinished()"></a>onPageFinished()</h3><p>WebView 在Android4.4的手机上onPageFinished()回调会多调用一次(具体原因待追查)<br>需要尽量避免在onPageFinished()中做业务操作，否则会导致重复调用，还有可能会引起逻辑上的错误。</p>
+<h3 id="获取Web页中的title"><a href="#获取Web页中的title" class="headerlink" title="获取Web页中的title"></a>获取Web页中的title</h3><p>需要给WebView设置 WebChromeClient,并在onReceiveTitle()回调中获取</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">WebChromeClient webChromeClient = <span class="keyword">new</span> WebChromeClient() &#123;    </div><div class="line">            <span class="meta">@Override</span>    </div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceivedTitle</span><span class="params">(WebView view, String title)</span> </span>&#123;    </div><div class="line">                <span class="keyword">super</span>.onReceivedTitle(view, title);    </div><div class="line">                 </div><div class="line">                txtTitle.setText(title);    </div><div class="line">            &#125;    </div><div class="line">    </div><div class="line">        &#125;;</div></pre></td></tr></table></figure>
+<p>但是发现在小米3的手机上，当通过webview.goBack()回退的时候，并没有触发onReceiveTitle()，这样会导致标题仍然是之前子页面的标题，没有切换回来.<br>这里可以分两种情况去处理：</p>
+<ol>
+<li>可以确定webview中子页面只有二级页面，没有更深的层次，这里只需要判断当前页面是否为初始的主页面，可以goBack的话，只要将标题设置回来即可.</li>
+<li>webview中可能有多级页面或者以后可能增加多级页面,这种情况处理起来要复杂一些:因为正常顺序加载的情况onReceiveTitle是一定会触发的，所以就需要自己来维护webviewloading的一个url栈及url与title的映射关系那么就需要一个ArrayList来保持加载过的url,一个HashMap保存url及对应的title.正常顺序加载时，将url和对应的title保存起来，webview回退时，移除当前url并取出将要回退到的web 页的url,找到对应的title进行设置即可.</li>
+</ol>
+<p>这里还要说一点，当加载出错的时候，比如无网络，这时onReceiveTitle中获取的标题为 找不到该网页,因此建议当触发onReceiveError时，不要使用获取到的title.</p>
+<h3 id="addJavaScriptInterface-引起的安全问题"><a href="#addJavaScriptInterface-引起的安全问题" class="headerlink" title="addJavaScriptInterface()引起的安全问题."></a>addJavaScriptInterface()引起的安全问题.</h3><p>这个问题主要是因为会有恶意的js代码注入,尤其是在已经获取root权限的手机上，一些恶意程序可能会利用该漏洞安装或者卸载应用.<br>关于详细的情况可以参考下面这篇文章：<br><a href="http://blog.csdn.net/leehong2005/article/details/11808557" target="_blank" rel="external">http://blog.csdn.net/leehong2005/article/details/11808557</a></p>
+<p>还有一个开源项目可以参考: <a href="https://github.com/dalufine/safe-java-js-webview-bridge" target="_blank" rel="external">https://github.com/dalufine/safe-java-js-webview-bridge</a>, 该项目利用onJsPrompt() 替代了addJavaScriptInterface(),(解决方案类似上述参考的博客)同时增加了异步回调,<br>很好地解决了webview  js注入的安全问题.</p>
+<h3 id="webView-destroy"><a href="#webView-destroy" class="headerlink" title="webView.destroy()"></a>webView.destroy()</h3><p>直接调用可能会引起如下错误:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">10</span>-<span class="number">10</span> <span class="number">15</span>:<span class="number">01</span>:<span class="number">11.402</span>: E/ViewRootImpl(<span class="number">7502</span>): sendUserActionEvent() mView == <span class="keyword">null</span>  </div><div class="line"><span class="number">10</span>-<span class="number">10</span> <span class="number">15</span>:<span class="number">01</span>:<span class="number">26.818</span>: E/webview(<span class="number">7502</span>): java.lang.Throwable: Error: WebView.destroy() called <span class="keyword">while</span> still attached!  </div><div class="line"><span class="number">10</span>-<span class="number">10</span> <span class="number">15</span>:<span class="number">01</span>:<span class="number">26.818</span>: E/webview(<span class="number">7502</span>):    at android.webkit.WebViewClassic.destroy(WebViewClassic.java:<span class="number">4142</span>)  </div><div class="line"><span class="number">10</span>-<span class="number">10</span> <span class="number">15</span>:<span class="number">01</span>:<span class="number">26.818</span>: E/webview(<span class="number">7502</span>):    at android.webkit.WebView.destroy(WebView.java:<span class="number">707</span>)</div></pre></td></tr></table></figure>
+<p>如上所示，webview调用destory时,webview仍绑定在Activity上.这是由于自定义webview构建时传入了该Activity的context对象,因此需要先从父容器中移除webview,然后再销毁webview:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rootLayout.removeView(webView);  </div><div class="line">webView.destroy();</div></pre></td></tr></table></figure>
+<h3 id="长按自定义菜单"><a href="#长按自定义菜单" class="headerlink" title="长按自定义菜单"></a>长按自定义菜单</h3><p> 这个功能首先可以从两方面完成：</p>
+<p><strong>1</strong> 在js中完成:</p>
+<p>处理<code>android.selection.longTouch</code>这里推荐一个开源项目进行参考,：<br><a href="https://github.com/dalufine/BTAndroidWebViewSelection" target="_blank" rel="external">https://github.com/dalufine/BTAndroidWebViewSelection</a></p>
+<p><strong>2</strong> 安卓层处理:</p>
+<p>首先使用OnTouchListener实现长按实现监听,然后实现WebView的Context menu,最后调用webview中的emulateShiftHeld(),为了适配安卓不同版本,最好使用反射方式调用.</p>
+<h3 id="调用js的方法"><a href="#调用js的方法" class="headerlink" title="调用js的方法"></a>调用js的方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">evaluateJavascript</span><span class="params">(String js)</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) &#123;</div><div class="line">        mWebview.evaluateJavascript(js, <span class="keyword">null</span>);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        mWebview.loadUrl(js);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在android4.4开始系统提供了evaluateJavascript方法来执行js方法，并且可以进行回调。但是在低于4.4的版本并没有这个方法，我们需要只要直接通过loadUrl的方式来执行js，此时需要在js代码前加<code>javascript:</code>。.</p>
+<h3 id="响应Javascript中的alert"><a href="#响应Javascript中的alert" class="headerlink" title="响应Javascript中的alert"></a>响应Javascript中的alert</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">webView.getSettings().setJavaScriptEnabled(<span class="keyword">true</span>);</div><div class="line">webView.setWebChromeClient(<span class="keyword">new</span> WebChromeClient()&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onJsAlert</span><span class="params">(WebView view, String url, String message, <span class="keyword">final</span> JsResult result)</span> </span>&#123;</div><div class="line">        AlertDialog.Builder builder = <span class="keyword">new</span> AlertDialog.Builder(MainActivity.<span class="keyword">this</span>);</div><div class="line">        builder.setTitle(<span class="string">"测试alert"</span>);</div><div class="line">        builder.setMessage(message);</div><div class="line">        builder.setPositiveButton(<span class="string">"确定"</span>, <span class="keyword">new</span> OnClickListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(DialogInterface dialog, <span class="keyword">int</span> which)</span> </span>&#123;</div><div class="line">                result.confirm();</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        builder.show();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>通过以上代码就可以实现当JS中执行alert时，在Android上以原生的对话框显示出来，当然这里也可以直接Toast。</p>
+<p>而这段代码中需要注意的地方有两点：</p>
+<ol>
+<li>返回值必须为true。<br>返回true，则说明已经处理了，不需要交由WebChromeClient来执行。而如果返回的是false，则Webview会继续执行后续的js代码，现象就是，弹出对话框之后，用户还没点确定，后续的js代码已经执行完了.</li>
+</ol>
+<p>最后必须调用result.confirm()。<br>原因在于，如果没有调用此函数，则后续的JS代码将无法继续执行下去。最常见的现象就是，alert对话框只出现一次，第二次再进行alert的时候没有任何反应。其实这里是因为没有调用confirm函数，就相当于在浏览器中alert之后，用户没有点确定。</p>
+<p>result.confirm()应该放到onClick回调中。<br>正如前面说的，调用confirm函数，就相当于用户点击了确定按钮。因此，我们要把confirm函数的调用放到Android原生对话框的“确定”按钮的回调函数中进行调用。 之前没理解透，把confirm函数放在了builder.show之后进行调用，结果现象是alert之后，对话框弹出来了，但是后续的js代码没有阻塞，而是继续执行下去了，变得就像是异步了一样，和在chrome中调用js代码的执行逻辑不一致。<br>不过，如果需求就是要直接执行下去，那也可以，只要理解了就行。</p>
+<h3 id="访问证书有问题的SSL网页"><a href="#访问证书有问题的SSL网页" class="headerlink" title="访问证书有问题的SSL网页"></a>访问证书有问题的SSL网页</h3><p>对于有证书问题的网页，比如过期、信息不正确、发行机关不被信任等，Webview默认情况下会拒绝访问。而PC端浏览器的处理则是提供用户进行选择是否要继续，在android也是可以实现的。<br>首先第一种是直接继续，不需要让用户进行选择</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceivedSslError</span><span class="params">(WebView view, SslErrorHandler handler, SslError error)</span> </span>&#123;</div><div class="line">    <span class="comment">// 默认为调用handler.cancel()方法，因此不要调用super的onReceivedSslError方法</span></div><div class="line">    <span class="comment">// super.onReceivedSslError(view, handler, error);</span></div><div class="line">    handler.proceed();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里要注意的是，千万不要调用super的onReceivedSslError方法，因为此方法中已经调用了handler.cancel()。<br>如果调用了，则会出现第一次无法加载，第二次却能正常访问的现象。</p>
+<p>内核会记住本次选择，如果下次还有相同的错误，内核会直接执行之前选择的结果。</p>
+<h3 id="慎重在shouldoverrideurlloading中返回true"><a href="#慎重在shouldoverrideurlloading中返回true" class="headerlink" title="慎重在shouldoverrideurlloading中返回true"></a>慎重在shouldoverrideurlloading中返回true</h3><p>当设置了WebviewClient时，在shouldoverrideurlloading中如果不需要对url进行拦截做处理，而是简单的继续加载此网址。<br>则建议采用返回false的方式而不是loadUrl的方式进行加载网址。</p>
+<p><code>当请求的方式是&quot;POST&quot;方式时这个回调是不会通知的。</code></p>
+<p>为什么这么建议呢？<br>因为如果采用loadUrl的方式进行加载，那么对于加载有跳转的网址时，进行webview.goBack就会特别麻烦。<br>例如加载链接如下：<br>A-&gt;(B-&gt;C-&gt;D)-&gt;E 括号内为跳转<br>如果采用return false的方式，那么在goBack的时候，可以从第二步直接回到A网页。从E回到A只需要执行两次goBack<br>而如果采用的是loadUrl，则没办法直接从第二步回到A网页。因为loadUrl把第二步的每个跳转都认为是一个新的网页加载，因此从E回到A需要执行四次goBack</p>
+<p>只有当不需要加载网址而是拦截做其他处理，如拦截tel:xxx等特殊url做拨号处理的时候，才应该返回true。</p>
+<hr>
+<p>参考链接：<a href="http://blog.csdn.net/t12x3456/article/details/13769731/" target="_blank" rel="external">CSDN</a>&lt;–&gt;<a href="http://blog.csdn.net/typename/article/details/39495409" target="_blank" rel="external">CSDN</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">大路</a></p>
+        <p><span>发布时间:</span>2015-12-20, 18:44:12</p>
+        <p><span>最后更新:</span>2015-12-20, 18:44:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2015/12/20/android-webview-issues/" title="Webview中的问题及解决">http://dalufan.com/2015/12/20/android-webview-issues/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://dalufan.com/2015/12/20/android-webview-issues/　　作者: 大路" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2015/12/22/android-webview-upload-file/">
+                    Webview中上传文件支持全解析
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2015/12/18/android-art-of-android-deveopment-note-3/">
+                    《Android 开发艺术探索》读书笔记--第三章View事件体系
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#goback-跳过302方法"><span class="toc-number">1.</span> <span class="toc-text">goback 跳过302方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#无法浏览AJAX网页问题"><span class="toc-number">2.</span> <span class="toc-text">无法浏览AJAX网页问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为WebView自定义错误显示界面"><span class="toc-number">3.</span> <span class="toc-text">为WebView自定义错误显示界面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cookies清理："><span class="toc-number">4.</span> <span class="toc-text">cookies清理：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#清理cache-和历史记录"><span class="toc-number">5.</span> <span class="toc-text">清理cache 和历史记录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#判断WebView是否已经滚动到页面底端"><span class="toc-number">6.</span> <span class="toc-text">判断WebView是否已经滚动到页面底端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理WebView中的非超链接请求-如Ajax请求"><span class="toc-number">7.</span> <span class="toc-text">处理WebView中的非超链接请求(如Ajax请求)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在页面中先显示图片"><span class="toc-number">8.</span> <span class="toc-text">在页面中先显示图片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#屏蔽掉长按事件"><span class="toc-number">9.</span> <span class="toc-text">屏蔽掉长按事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#加入-flash支持"><span class="toc-number">10.</span> <span class="toc-text">加入 flash支持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#保留缩放功能但隐藏缩放控件"><span class="toc-number">11.</span> <span class="toc-text">保留缩放功能但隐藏缩放控件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#onPageFinished"><span class="toc-number">12.</span> <span class="toc-text">onPageFinished()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获取Web页中的title"><span class="toc-number">13.</span> <span class="toc-text">获取Web页中的title</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#addJavaScriptInterface-引起的安全问题"><span class="toc-number">14.</span> <span class="toc-text">addJavaScriptInterface()引起的安全问题.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#webView-destroy"><span class="toc-number">15.</span> <span class="toc-text">webView.destroy()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#长按自定义菜单"><span class="toc-number">16.</span> <span class="toc-text">长按自定义菜单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调用js的方法"><span class="toc-number">17.</span> <span class="toc-text">调用js的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#响应Javascript中的alert"><span class="toc-number">18.</span> <span class="toc-text">响应Javascript中的alert</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#访问证书有问题的SSL网页"><span class="toc-number">19.</span> <span class="toc-text">访问证书有问题的SSL网页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#慎重在shouldoverrideurlloading中返回true"><span class="toc-number">20.</span> <span class="toc-text">慎重在shouldoverrideurlloading中返回true</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"Webview中的问题及解决　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2015/12/20/android-webview-issues/" data-title="Webview中的问题及解决" data-url="http://dalufan.com/2015/12/20/android-webview-issues/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"dalufan"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2015/12/22/android-webview-upload-file/" title="上一篇: Webview中上传文件支持全解析">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2015/12/18/android-art-of-android-deveopment-note-3/" title="下一篇: 《Android 开发艺术探索》读书笔记--第三章View事件体系">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/07/android-startActivityForResult-FragmentActivity-Fragment/">彻底搞懂startActivityForResult在FragmentActivity和Fragment中的异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/03/android-dynamicicon-example/">android动态更新APP图标和label</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/android-ViewPager-Fragment-LazyLoad/">ViewPager+Fragment LazyLoad 最优解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/08/java-singleton-good-write/">Java更好的单例写法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/02/android-recycleview-useage-issues/">RecycleView的使用及坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/android-click-icon-restart/">防止App在后台运行，点击应用桌面图标重新启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/android-some-little-knowledge/">Android的一些开发细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/30/mysql-join-usage/">图解SQL的Join</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/swift-string-create-class/">Swift:通过字符串创建类对象  </a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/android-fragment-backpress/">Fragment监听返回键事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/08/ios-constraint-autolayout-autoresizing/">autolayout和autoresizing的使用注意事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/xcode-eclipse-key-xcodeKit/">xcode中快速删除拷贝一行，like eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/ios-imageNamed-imageWithContentsOfFile-diff/">imageNamed和imageWithContentsOfFile的使用和区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/07/android-rotate-imageview/">Android 自定义可旋转的ImageView</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/mysql-case-when-and-left-join-demo/">mysql中UNIQUE、判断、组合查找的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/27/android-fragment-state-saving-best-practices/">fragment状态保存最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/03/mysql-base-usage-03/">《mysql 必知必会》读书笔记三（21-30）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/30/mysql-base-usage-02/">《mysql 必知必会》读书笔记二（13-20）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/28/mysql-base-usage-01/">《mysql 必知必会》读书笔记一（1-12）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/21/android-listview-usage/">android listview的一些技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/11/android-react-native-learn-day02/">react-native学习笔记二</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/26/android-react-native-learn-day01/">react-native学习笔记一</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/17/android-widget-imageview-1/">自定义ImageView系列第一版</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/26/web-maven-springmvc-start-learn/">使用maven配置springmvc的过程中遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/23/java-uml-learn/">UML中的五种关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/17/android-art-of-android-deveopment-note-2/">《Android 开发艺术探索》读书笔记--第二章 IPC机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/13/effective-java-learn-note-10-01/">《Effective Java》读书笔记--第十章 并发（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/20/android-art-of-android-deveopment-note-12/">《Android 开发艺术探索》读书笔记--第十二章 Bitmap 第十五章 性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/11/thinking-of-getting-the-current-activity-in-android/">如何获取当前Activity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/08/workflow-feature-branch-Pull-Request/">WorkFlow--功能分支工作流(Pull Requests)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/02/workflow-Pull-Request/">Pull Requests的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/20/android-art-of-android-deveopment-note-10/">《Android 开发艺术探索》读书笔记--第十章Android的消息机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android-art-of-android-deveopment-note-4/">《Android 开发艺术探索》读书笔记--第四章 View的工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/workflow-centralized-git-rebase/">WorkFlow--集中式工作流(git rebase)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/03/android-activity-onActivityResult/">Activity中onActivityResult存在的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/22/android-webview-upload-file/">Webview中上传文件支持全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/18/android-art-of-android-deveopment-note-3/">《Android 开发艺术探索》读书笔记--第三章View事件体系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/02/java-JSONObject-Stub/">java工程中调用Android库出现“Stub!”错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-optimization-thread-ThreadPoolExecutor/">android性能优化--使用线程池处理异步任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/26/android-View-LinearGradient/">android中使用LinearGradient实现文字闪烁的效果</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/24/android-Activity-launch-learn/">Activity启动过程全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/23/android-DownloadManager-usage/">android中使用DownloadManager来下载</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/22/android-context-learn/">Android Context完全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-achievement/">Android项目重构的整理-实现篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-view/">Android项目重构的整理-界面篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-architecture/">Android项目重构的整理-架构篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-webview-js-safe-message/">Webview与Js之间的另一种交互</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-error-UncaughtExceptionHandler/">android中处理崩溃的一般方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/18/android-mat-usage/">MAT的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/17/android-gc-leak/">android 内存泄露以及GC的相关知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/12/android-onSaveInstanceState-learn/">Activity和Fragement中onSaveInstanceState()的使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/07/app-hearsay/">道听途说</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can't create handler inside thread that has not</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-view-issues/">android中view相关的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/18/android-dex-inject-learn/">android dex注入实现详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/17/android-canvas-draw/">android中canvas的一些属性和用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/11/android-onTouchEvent/">Android触摸事件的响应机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/10/free-mail-mailinator/">mailinator 免费邮箱的使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-setOnPageChangeListener/">ViewPager的setOnPageChangeListener方法详解 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-Activity-ActionBarActivity-AppCompatActivity/">android中关于Activity/ActionBarActivity/AppCompatActivity的区分与理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/07/android-BitmapFactory-OutOfMemoryError/">android BitmapFactory的OutOfMemoryError的解决方案 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/03/git-android-as/">在android Studio 和 Eclipse 的 git 插件操作'代码提交'以及'代码冲突' </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/01/android-QR-changesize/">Zxing二维码扫描框大小修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/retrofit-usage/">Retrofit 中文文档</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/git-reset-soft-mixed-hard/">Difference between git reset soft, mixed and hard</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/27/android-so-usage/">关于android的.so文件你所需要知道的</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/26/android-EmailAutoCompleteTextView/">android 邮箱地址自动补全</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/24/android-setCompoundDrawables-setCompoundDrawablesWithIntrinsicBounds/">android setCompoundDrawables与setCompoundDrawablesWithIntrinsicBounds的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/20/android-Drawable-usage/">android Drawable 那些不为人知的高效用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/29/hello-world/">Hexo的使用方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/10/eclipse-cannot-open-git-upload-pack/">eclipse git push和pull出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/01/android-listview-ontouchevent/">android中对GridView， ListView等滚动控件的Touch事件onInterceptTouchEvent，onTouchEvent理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/29/android-javascript-exchange/">Android与Javascript交互概要</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/21/android-performance-optimization-SparseArray/">android应用性能优化中使用SparseArray替代HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/12/java-regex-useage/">Java正则表达式的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/05/android-motionevent/">MotionEvent中getX()、getRawX()等位置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/26/android-service-download-singlethread/">android中Service断点下载-单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/18/service-not-be-killed/">android保证Service不被杀掉的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/12/android-Intent-PendingIntent/">android中Intent和PendingIntent的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/10/android-AlarmManager/">android中AlarmManager的说明例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/android-handler-learn/">android中Handler的使用Tips</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/14/android-sqlite-err/">sqlite遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/14/android-sqlite-learn/">sqlite的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/11/android-thread-volatile-synchronized-final/">进程通信中volatile, synchronized, final的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/17/java-Process/">java.lang.Process 阻塞问题 & Runtime.exec()的陷阱</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/16/android-excel/">android操作Excel文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/14/android-Smail-learn/">Smail语法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-ContentObserver-learn/">android中ContentObserver类详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/30/android-app-usagestats/">android 获取各应用的运行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/29/ubuntu-android-driver/">ubuntu下解决不能识别android设备</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-View-learn-three/">android中简单自定义view③</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-DownloadManager/">android DownloadManager广播事件：下载完成、通知栏点击事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-one/">android中View的使用及解释①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-ContentProvider-learn/">android ContentProvider基本使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-Uri-learn/">android中Uri的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/20/android-mediaplayer-usage/">android MediaPlayer基本使用方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/30/net-get-post/">GET请求和POST请求的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/28/android-sec-commonly/">android一些安全事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-Intent/">android中Intent使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-BroadcastReceiver/">android中BroadcastReceiver应用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-activity-task/">android中Activity的task</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/25/android-activity-launchMode/">android中Activity的四种launchMode</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/18/android-permission/">android声明和使用权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/14/android-view-IllegalArgumentException/">View not attached to window manager</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/12/httpclient-learn-conclusion/">httpclient使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/10/android-MediaRecorder-stop-error/">android录音时stop出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/08/android-xutils-http-learn/">xutils中HttpUtils模块分析①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/10/20/android-error/">android异常/错误集</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/30/java-Generics/">java中泛型Generics的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/26/java-ThreadPoolExecutor/">android里面ThreadPoolExecutor的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/24/java-volatile-static/">java中volatile和static的区别 </a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/21/java-shutdown/">线程池shutdown()方法和shutdownNow()区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-volatile/">java 里面volatile的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-AtomicInteger/">java 里面AtomicInteger的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/07/java-string-format/">java中string.format方法使用介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/06/java-Serializable/">java 里面Serializable的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/05/eclipse-git-merge/">eclipse中git解决冲突</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/04/java-enum-final/">java中枚举和常量定义的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/03/java-enum/">java中enum的用法详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/05/17/git-api/">git常用命令及思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/java-trans/">java是传值还是传引用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/session-cookie/">详解COOKIE与SESSION的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/02/16/string-stringbuffer/">String和StringBuffer的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/08/24/java-reflection/">Java反射Demo</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/ubuntu_order/">ubuntu命令学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/sublime-text-2/">Sublime Text 2使用简介</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

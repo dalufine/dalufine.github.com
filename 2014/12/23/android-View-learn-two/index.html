@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta name="description" content="要知道，任何一个视图都不可能凭空突然出现在屏幕上，它们都是要经过非常科学的绘制流程后才能显示出来的。每一个视图的绘制过程都必须经历三个最主要的阶段，即onMeasure()、onLayout()和onDraw()，下面我们逐个对这三个阶段展开进行探讨。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android中View的使用及解释②">
+<meta property="og:url" content="http://dalufan.com/2014/12/23/android-View-learn-two/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:description" content="要知道，任何一个视图都不可能凭空突然出现在屏幕上，它们都是要经过非常科学的绘制流程后才能显示出来的。每一个视图的绘制过程都必须经历三个最主要的阶段，即onMeasure()、onLayout()和onDraw()，下面我们逐个对这三个阶段展开进行探讨。">
+<meta property="og:updated_time" content="2015-11-25T10:44:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="android中View的使用及解释②">
+<meta name="twitter:description" content="要知道，任何一个视图都不可能凭空突然出现在屏幕上，它们都是要经过非常科学的绘制流程后才能显示出来的。每一个视图的绘制过程都必须经历三个最主要的阶段，即onMeasure()、onLayout()和onDraw()，下面我们逐个对这三个阶段展开进行探讨。">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>android中View的使用及解释② | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-android-View-learn-two" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2014/12/23/android-View-learn-two/" class="article-date">
+      <time datetime="2014-12-23T10:44:12.000Z" itemprop="datePublished">2014-12-23</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      android中View的使用及解释②
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/View/">View</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>要知道，任何一个视图都不可能凭空突然出现在屏幕上，它们都是要经过非常科学的绘制流程后才能显示出来的。每一个视图的绘制过程都必须经历三个最主要的阶段，即<code>onMeasure()</code>、<code>onLayout()</code>和<code>onDraw()</code>，下面我们逐个对这三个阶段展开进行探讨。</p>
+<a id="more"></a> 
+<h3 id="一-onMeasure"><a href="#一-onMeasure" class="headerlink" title="一. onMeasure()"></a>一. onMeasure()</h3><p>measure是测量的意思，那么onMeasure()方法顾名思义就是用于测量视图的大小的。View系统的绘制流程会从ViewRoot的performTraversals()方法中开始，在其内部调用View的measure()方法。measure()方法接收两个参数，<code>widthMeasureSpec</code>和<code>heightMeasureSpec</code>，这两个值分别用于确定视图的宽度和高度的规格和大小。</p>
+<p>MeasureSpec是一个32位的int值，其值由specMode（占2位）和specSize（占30位）共同组成的，其中specMode记录的是测量的模式，specSize记录的是大小。specMode一共有三种类型，如下所示：</p>
+<p><strong>EXACTLY</strong>表示父视图希望子视图的大小应该是由specSize的值来决定的。<code>当我们指定layout_width的值或者为match_parent时，会使用该模式</code></p>
+<p><strong>AT_MOST</strong>表示子视图最多只能是specSize中指定的大小，开发人员应该尽可能小得去设置这个视图，并且保证不会超过specSize。<code>当我们设置layout_width的值为wrap_content时，会使用该模式</code></p>
+<p><strong>UNSPECIFIED</strong>表示开发人员可以将视图按照自己的意愿设置成任意的大小，没有任何限制。这种情况比较少见，不太会用到。</p>
+<p><strong>补充：</strong>View类默认的onMeasure()方法只支持EXACTLY模式，如果在自定义控件的时候，不重写onMeasure()，只能使用EXACTLY模式。其他模式均需要重写onMeasure()。</p>
+<p>那么你可能会有疑问了，<code>widthMeasureSpec</code>和<code>heightMeasureSpec</code>这两个值又是从哪里得到的呢？通常情况下，<code>这两个值都是由父视图经过计算后传递给子视图的</code>，说明父视图会在一定程度上决定子视图的大小。但是最外层的根视图，它的widthMeasureSpec和heightMeasureSpec又是从哪里得到的呢？这就需要去分析ViewRoot中的源码了，观察performTraversals()方法可以发现如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);  </div><div class="line">childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);</div></pre></td></tr></table></figure>
+<p>可以看到，这里调用了getRootMeasureSpec()方法去获取widthMeasureSpec和heightMeasureSpec的值，注意方法中传入的参数，其中lp.width和lp.height在创建ViewGroup实例的时候就被赋值了，它们都等于<code>MATCH_PARENT</code>。然后看下getRootMeasureSpec()方法中的代码，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getRootMeasureSpec</span><span class="params">(<span class="keyword">int</span> windowSize, <span class="keyword">int</span> rootDimension)</span> </span>&#123;  </div><div class="line">    <span class="keyword">int</span> measureSpec;  </div><div class="line">    <span class="keyword">switch</span> (rootDimension) &#123;  </div><div class="line">    <span class="keyword">case</span> ViewGroup.LayoutParams.MATCH_PARENT:  </div><div class="line">        measureSpec = MeasureSpec.makeMeasureSpec(windowSize, MeasureSpec.EXACTLY);  </div><div class="line">        <span class="keyword">break</span>;  </div><div class="line">    <span class="keyword">case</span> ViewGroup.LayoutParams.WRAP_CONTENT:  </div><div class="line">        measureSpec = MeasureSpec.makeMeasureSpec(windowSize, MeasureSpec.AT_MOST);  </div><div class="line">        <span class="keyword">break</span>;  </div><div class="line">    <span class="keyword">default</span>:  </div><div class="line">        measureSpec = MeasureSpec.makeMeasureSpec(rootDimension, MeasureSpec.EXACTLY);  </div><div class="line">        <span class="keyword">break</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> measureSpec;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，这里使用了MeasureSpec.makeMeasureSpec()方法来组装一个MeasureSpec，当rootDimension参数等于MATCH_PARENT的时候，MeasureSpec的specMode就等于EXACTLY，当rootDimension等于WRAP_CONTENT的时候，MeasureSpec的specMode就等于AT_MOST。并且MATCH_PARENT和WRAP_CONTENT时的specSize都是等于windowSize的，也就意味着根视图总是会充满全屏的。</p>
+<p>介绍了这么多MeasureSpec相关的内容，接下来我们看下View的measure()方法里面的代码吧，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">measure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> ((mPrivateFlags &amp; FORCE_LAYOUT) == FORCE_LAYOUT ||  </div><div class="line">            widthMeasureSpec != mOldWidthMeasureSpec ||  </div><div class="line">            heightMeasureSpec != mOldHeightMeasureSpec) &#123;  </div><div class="line">        mPrivateFlags &amp;= ~MEASURED_DIMENSION_SET;  </div><div class="line">        <span class="keyword">if</span> (ViewDebug.TRACE_HIERARCHY) &#123;  </div><div class="line">            ViewDebug.trace(<span class="keyword">this</span>, ViewDebug.HierarchyTraceType.ON_MEASURE);  </div><div class="line">        &#125;  </div><div class="line">        onMeasure(widthMeasureSpec, heightMeasureSpec);  </div><div class="line">        <span class="keyword">if</span> ((mPrivateFlags &amp; MEASURED_DIMENSION_SET) != MEASURED_DIMENSION_SET) &#123;  </div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"onMeasure() did not set the"</span>  </div><div class="line">                    + <span class="string">" measured dimension by calling"</span>  </div><div class="line">                    + <span class="string">" setMeasuredDimension()"</span>);  </div><div class="line">        &#125;  </div><div class="line">        mPrivateFlags |= LAYOUT_REQUIRED;  </div><div class="line">    &#125;  </div><div class="line">    mOldWidthMeasureSpec = widthMeasureSpec;  </div><div class="line">    mOldHeightMeasureSpec = heightMeasureSpec;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注意观察，<code>measure()这个方法是final的</code>，因此我们无法在子类中去重写这个方法，说明android是不允许我们改变View的measure框架的。然后在第9行调用了onMeasure()方法，这里才是真正去测量并设置View大小的地方，默认会调用getDefaultSize()方法来获取视图的大小，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getDefaultSize</span><span class="params">(<span class="keyword">int</span> size, <span class="keyword">int</span> measureSpec)</span> </span>&#123;  </div><div class="line">    <span class="keyword">int</span> result = size;  </div><div class="line">    <span class="keyword">int</span> specMode = MeasureSpec.getMode(measureSpec);  </div><div class="line">    <span class="keyword">int</span> specSize = MeasureSpec.getSize(measureSpec);  </div><div class="line">    <span class="keyword">switch</span> (specMode) &#123;  </div><div class="line">    <span class="keyword">case</span> MeasureSpec.UNSPECIFIED:  </div><div class="line">        result = size;  </div><div class="line">        <span class="keyword">break</span>;  </div><div class="line">    <span class="keyword">case</span> MeasureSpec.AT_MOST:  </div><div class="line">    <span class="keyword">case</span> MeasureSpec.EXACTLY:  </div><div class="line">        result = specSize;  </div><div class="line">        <span class="keyword">break</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里传入的measureSpec是一直从measure()方法中传递过来的。然后调用MeasureSpec.getMode()方法可以解析出specMode，调用MeasureSpec.getSize()方法可以解析出specSize。接下来进行判断，如果specMode等于AT_MOST或EXACTLY就返回specSize，这也是系统默认的行为。之后会在onMeasure()方法中调用<code>setMeasuredDimension()</code>方法来设定测量出的大小，这样一次measure过程就结束了。</p>
+<p>当然，一个界面的展示可能会涉及到很多次的measure，因为一个布局中一般都会包含多个子视图，每个视图都需要经历一次measure过程。ViewGroup中定义了一个measureChildren()方法来去测量子视图的大小，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">measureChildren</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;  </div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> size = mChildrenCount;  </div><div class="line">    <span class="keyword">final</span> View[] children = mChildren;  </div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; ++i) &#123;  </div><div class="line">        <span class="keyword">final</span> View child = children[i];  </div><div class="line">        <span class="keyword">if</span> ((child.mViewFlags &amp; VISIBILITY_MASK) != GONE) &#123;  </div><div class="line">            measureChild(child, widthMeasureSpec, heightMeasureSpec);  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里首先会去遍历当前布局下的所有子视图，然后逐个调用measureChild()<br>方法来测量相应子视图的大小，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">measureChild</span><span class="params">(View child, <span class="keyword">int</span> parentWidthMeasureSpec,  </span></span></div><div class="line">        <span class="keyword">int</span> parentHeightMeasureSpec) &#123;  </div><div class="line">    <span class="keyword">final</span> LayoutParams lp = child.getLayoutParams();  </div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,  </div><div class="line">            mPaddingLeft + mPaddingRight, lp.width);  </div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,  </div><div class="line">            mPaddingTop + mPaddingBottom, lp.height);  </div><div class="line">    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，在第4行和第6行分别调用了getChildMeasureSpec()方法来去计算子视图的MeasureSpec，计算的依据就是布局文件中定义的MATCH_PARENT、WRAP_CONTENT等值，这个方法的内部细节就不再贴出。然后在第8行调用子视图的measure()方法，并把计算出的MeasureSpec传递进去，之后的流程就和前面所介绍的一样了。<br>当然，onMeasure()方法是可以重写的，也就是说，如果你不想使用系统默认的测量方式，可以按照自己的意愿进行定制，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyView</span> <span class="keyword">extends</span> <span class="title">View</span> </span>&#123;  </div><div class="line">  </div><div class="line">    ......  </div><div class="line">      </div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;  </div><div class="line">        setMeasuredDimension(<span class="number">200</span>, <span class="number">200</span>);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样的话就把View默认的测量流程覆盖掉了，不管在布局文件中定义MyView这个视图的大小是多少，最终在界面上显示的大小都将会是200*200。</p>
+<p>或者：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyView</span> <span class="keyword">extends</span> <span class="title">View</span> </span>&#123;  </div><div class="line">  </div><div class="line">    ......  </div><div class="line">      </div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;  </div><div class="line">        setMeasuredDimension(measureWidth(widthMeasureSpec), measureHeight(heightMeasureSpec));  </div><div class="line">    &#125;  </div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">measureWidth</span><span class="params">(<span class="keyword">int</span> measureSpec)</span></span>&#123;</div><div class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</div><div class="line">        <span class="keyword">int</span> specMode = MeasureSpec.getMode(measureSpec) ;</div><div class="line">        <span class="keyword">int</span> specSize = MeasureSpec.getSize(measureSpec);</div><div class="line"></div><div class="line">        <span class="keyword">if</span>(specMode==MeasureSpec.EXACTLY)&#123;</div><div class="line">            result = specSize;</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            result = <span class="number">200</span>;</div><div class="line">            <span class="keyword">if</span>(specMode == MeasureSpec.AT_MOST)&#123;</div><div class="line">                result = Math.min(result,specSize);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> result ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">measureHeight</span><span class="params">(<span class="keyword">int</span> measureSpec)</span></span>&#123;</div><div class="line">       ......  </div><div class="line">    &#125;</div><div class="line"></div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当模式为AT_MOST，需要设置为“指定大小”与specSize的最小值。</p>
+<p>需要注意的是，<code>在setMeasuredDimension()</code>方法调用之后，我们<code>才能使用getMeasuredWidth()和getMeasuredHeight()</code>来获取视图测量出的宽高，以此之前调用这两个方法得到的值都会是0。</p>
+<p>由此可见，视图大小的控制是由父视图、布局文件、以及视图本身共同完成的，父视图会提供给子视图参考的大小，而开发人员可以在XML文件中指定视图的大小，然后视图本身会对最终的大小进行拍板。</p>
+<p>到此为止，我们就把视图绘制流程的第一阶段分析完了。</p>
+<h3 id="二-onLayout"><a href="#二-onLayout" class="headerlink" title="二. onLayout()"></a>二. onLayout()</h3><p>measure过程结束后，视图的大小就已经测量好了，接下来就是layout的过程了。正如其名字所描述的一样，这个方法是用于给视图进行布局的，也就是确定视图的位置。ViewRoot的<code>performTraversals()</code>方法会在measure结束后继续执行，并调用View的layout()方法来执行此过程，如下所示：</p>
+<pre><code>host.layout(0, 0, host.mMeasuredWidth, host.mMeasuredHeight);  
+</code></pre><p>layout()方法接收四个参数，分别代表着左、上、右、下的坐标，当然这个坐标是相对于当前视图的父视图而言的。可以看到，这里还把刚才测量出的宽度和高度传到了layout()方法中。那么我们来看下layout()方法中的代码是什么样的吧，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">layout</span><span class="params">(<span class="keyword">int</span> l, <span class="keyword">int</span> t, <span class="keyword">int</span> r, <span class="keyword">int</span> b)</span> </span>&#123;  </div><div class="line">    <span class="keyword">int</span> oldL = mLeft;  </div><div class="line">    <span class="keyword">int</span> oldT = mTop;  </div><div class="line">    <span class="keyword">int</span> oldB = mBottom;  </div><div class="line">    <span class="keyword">int</span> oldR = mRight;  </div><div class="line">    <span class="keyword">boolean</span> changed = setFrame(l, t, r, b);  </div><div class="line">    <span class="keyword">if</span> (changed || (mPrivateFlags &amp; LAYOUT_REQUIRED) == LAYOUT_REQUIRED) &#123;  </div><div class="line">        <span class="keyword">if</span> (ViewDebug.TRACE_HIERARCHY) &#123;  </div><div class="line">            ViewDebug.trace(<span class="keyword">this</span>, ViewDebug.HierarchyTraceType.ON_LAYOUT);  </div><div class="line">        &#125;  </div><div class="line">        onLayout(changed, l, t, r, b);  </div><div class="line">        mPrivateFlags &amp;= ~LAYOUT_REQUIRED;  </div><div class="line">        <span class="keyword">if</span> (mOnLayoutChangeListeners != <span class="keyword">null</span>) &#123;  </div><div class="line">            ArrayList&lt;OnLayoutChangeListener&gt; listenersCopy =  </div><div class="line">                    (ArrayList&lt;OnLayoutChangeListener&gt;) mOnLayoutChangeListeners.clone();  </div><div class="line">            <span class="keyword">int</span> numListeners = listenersCopy.size();  </div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numListeners; ++i) &#123;  </div><div class="line">                listenersCopy.get(i).onLayoutChange(<span class="keyword">this</span>, l, t, r, b, oldL, oldT, oldR, oldB);  </div><div class="line">            &#125;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">    mPrivateFlags &amp;= ~FORCE_LAYOUT;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在layout()方法中，首先会调用setFrame()方法来判断视图的大小是否发生过变化，以确定有没有必要对当前的视图进行重绘，同时还会在这里把传递过来的四个参数分别赋值给mLeft、mTop、mRight和mBottom这几个变量。接下来会在第11行调用onLayout()方法，正如onMeasure()方法中的默认行为一样，也许你已经迫不及待地想知道onLayout()方法中的默认行为是什么样的了。进入onLayout()方法，咦？怎么这是个空方法，一行代码都没有？！</p>
+<p>没错，View中的onLayout()方法就是一个空方法，因为onLayout()过程是为了确定视图在布局中所在的位置，而这个操作应该是由布局来完成的，即<code>父视图决定子视图的显示位置</code>。既然如此，我们来看下ViewGroup中的onLayout()方法是怎么写的吧，代码如下：</p>
+<pre><code>@Override  
+protected abstract void onLayout(boolean changed, int l, int t, int r, int b);  
+</code></pre><p>可以看到，ViewGroup中的onLayout()方法竟然是一个抽象方法，这就意味着所有ViewGroup的子类都必须重写这个方法。没错，像LinearLayout、RelativeLayout等布局，都是重写了这个方法，然后在内部按照各自的规则对子视图进行布局的。由于LinearLayout和RelativeLayout的布局规则都比较复杂，就不单独拿出来进行分析了，这里我们尝试自定义一个布局，借此来更深刻地理解onLayout()的过程。<br>自定义的这个布局目标很简单，只要能够包含一个子视图，并且让子视图正常显示出来就可以了。那么就给这个布局起名叫做SimpleLayout吧，代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleLayout</span> <span class="keyword">extends</span> <span class="title">ViewGroup</span> </span>&#123;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SimpleLayout</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;  </div><div class="line">        <span class="keyword">super</span>(context, attrs);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;  </div><div class="line">        <span class="keyword">super</span>.onMeasure(widthMeasureSpec, heightMeasureSpec);  </div><div class="line">        <span class="keyword">if</span> (getChildCount() &gt; <span class="number">0</span>) &#123;  </div><div class="line">            View childView = getChildAt(<span class="number">0</span>);  </div><div class="line">            measureChild(childView, widthMeasureSpec, heightMeasureSpec);  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onLayout</span><span class="params">(<span class="keyword">boolean</span> changed, <span class="keyword">int</span> l, <span class="keyword">int</span> t, <span class="keyword">int</span> r, <span class="keyword">int</span> b)</span> </span>&#123;  </div><div class="line">        <span class="keyword">if</span> (getChildCount() &gt; <span class="number">0</span>) &#123;  </div><div class="line">            View childView = getChildAt(<span class="number">0</span>);  </div><div class="line">            childView.layout(<span class="number">0</span>, <span class="number">0</span>, childView.getMeasuredWidth(), childView.getMeasuredHeight());  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码非常的简单，我们来看下具体的逻辑吧。你已经知道，onMeasure()方法会在onLayout()方法之前调用，因此这里在onMeasure()方法中判断SimpleLayout中是否有包含一个子视图，如果有的话就调用measureChild()方法来测量出子视图的大小。<br>接着在onLayout()方法中同样判断SimpleLayout是否有包含一个子视图，然后调用这个子视图的layout()方法来确定它在SimpleLayout布局中的位置，这里传入的四个参数依次是0、0、childView.getMeasuredWidth()和childView.getMeasuredHeight()，分别代表着子视图在SimpleLayout中左上右下四个点的坐标。其中，调用childView.getMeasuredWidth()和childView.getMeasuredHeight()方法得到的值就是在onMeasure()方法中测量出的宽和高。</p>
+<p>这样就已经把SimpleLayout这个布局定义好了，下面就是在XML文件中使用它了，如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;com.example.viewtest.SimpleLayout xmlns:android="http://schemas.android.com/apk/res/android"  </div><div class="line">    android:layout_width="match_parent"  </div><div class="line">    android:layout_height="match_parent" &gt;  </div><div class="line">      </div><div class="line">    &lt;ImageView   </div><div class="line">        android:layout_width="wrap_content"  </div><div class="line">        android:layout_height="wrap_content"  </div><div class="line">        android:src="@drawable/ic_launcher"  </div><div class="line">        /&gt;  </div><div class="line">      </div><div class="line">&lt;/com.example.viewtest.SimpleLayout&gt;</div></pre></td></tr></table></figure>
+<p>可以看到，我们能够像使用普通的布局文件一样使用SimpleLayout，只是注意它只能包含一个子视图，多余的子视图会被舍弃掉。如果你想改变ImageView显示的位置，只需要改变childView.layout()方法的四个参数就行了。</p>
+<p>在onLayout()过程结束后，我们就可以调用getWidth()方法和getHeight()方法来获取视图的宽高了。说到这里，我相信很多朋友长久以来都会有一个疑问，<code>getWidth()</code>方法和<code>getMeasureWidth()</code>方法到底有什么区别呢？它们的值好像永远都是相同的。其实它们的值之所以会相同基本都是因为布局设计者的编码习惯非常好，实际上它们之间的差别还是挺大的。</p>
+<ul>
+<li>首先getMeasureWidth()方法在measure()过程结束后就可以获取到了，</li>
+<li>而getWidth()方法要在layout()过程结束后才能获取到。</li>
+<li>另外，getMeasureWidth()方法中的值是通过setMeasuredDimension()方法来进行设置的，</li>
+<li>而getWidth()方法中的值则是通过视图右边的坐标减去左边的坐标计算出来的。</li>
+</ul>
+<p>观察SimpleLayout中onLayout()方法的代码，这里给子视图的layout()方法传入的四个参数分别是0、0、childView.getMeasuredWidth()和childView.getMeasuredHeight()，因此getWidth()方法得到的值就是childView.getMeasuredWidth() - 0 = childView.getMeasuredWidth() ，所以此时getWidth()方法和getMeasuredWidth() 得到的值就是相同的，但如果你将onLayout()方法中的代码进行如下修改：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span>  </div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onLayout</span><span class="params">(<span class="keyword">boolean</span> changed, <span class="keyword">int</span> l, <span class="keyword">int</span> t, <span class="keyword">int</span> r, <span class="keyword">int</span> b)</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (getChildCount() &gt; <span class="number">0</span>) &#123;  </div><div class="line">        View childView = getChildAt(<span class="number">0</span>);  </div><div class="line">        childView.layout(<span class="number">0</span>, <span class="number">0</span>, <span class="number">200</span>, <span class="number">200</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样getWidth()方法得到的值就是200 - 0 = 200，不会再和getMeasuredWidth()的值相同了。当然这种做法充分不尊重measure()过程计算出的结果，通常情况下是不推荐这么写的。getHeight()与getMeasureHeight()方法之间的关系同上，就不再重复分析了。<br>到此为止，我们把视图绘制流程的第二阶段也分析完了。</p>
+<h3 id="三-onDraw"><a href="#三-onDraw" class="headerlink" title="三. onDraw()"></a>三. onDraw()</h3><p>measure和layout的过程都结束后，接下来就进入到draw的过程了。同样，根据名字你就能够判断出，在这里才真正地开始对视图进行绘制。ViewRoot中的代码会继续执行并创建出一个Canvas对象，然后调用View的draw()方法来执行具体的绘制工作。draw()方法内部的绘制过程总共可以分为六步，其中第二步和第五步在一般情况下很少用到，因此这里我们只分析简化后的绘制过程。代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">draw</span><span class="params">(Canvas canvas)</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (ViewDebug.TRACE_HIERARCHY) &#123;  </div><div class="line">        ViewDebug.trace(<span class="keyword">this</span>, ViewDebug.HierarchyTraceType.DRAW);  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> privateFlags = mPrivateFlags;  </div><div class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> dirtyOpaque = (privateFlags &amp; DIRTY_MASK) == DIRTY_OPAQUE &amp;&amp;  </div><div class="line">            (mAttachInfo == <span class="keyword">null</span> || !mAttachInfo.mIgnoreDirtyState);  </div><div class="line">    mPrivateFlags = (privateFlags &amp; ~DIRTY_MASK) | DRAWN;  </div><div class="line">    <span class="comment">// Step 1, draw the background, if needed  </span></div><div class="line">    <span class="keyword">int</span> saveCount;  </div><div class="line">    <span class="keyword">if</span> (!dirtyOpaque) &#123;  </div><div class="line">        <span class="keyword">final</span> Drawable background = mBGDrawable;  </div><div class="line">        <span class="keyword">if</span> (background != <span class="keyword">null</span>) &#123;  </div><div class="line">            <span class="keyword">final</span> <span class="keyword">int</span> scrollX = mScrollX;  </div><div class="line">            <span class="keyword">final</span> <span class="keyword">int</span> scrollY = mScrollY;  </div><div class="line">            <span class="keyword">if</span> (mBackgroundSizeChanged) &#123;  </div><div class="line">                background.setBounds(<span class="number">0</span>, <span class="number">0</span>,  mRight - mLeft, mBottom - mTop);  </div><div class="line">                mBackgroundSizeChanged = <span class="keyword">false</span>;  </div><div class="line">            &#125;  </div><div class="line">            <span class="keyword">if</span> ((scrollX | scrollY) == <span class="number">0</span>) &#123;  </div><div class="line">                background.draw(canvas);  </div><div class="line">            &#125; <span class="keyword">else</span> &#123;  </div><div class="line">                canvas.translate(scrollX, scrollY);  </div><div class="line">                background.draw(canvas);  </div><div class="line">                canvas.translate(-scrollX, -scrollY);  </div><div class="line">            &#125;  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> viewFlags = mViewFlags;  </div><div class="line">    <span class="keyword">boolean</span> horizontalEdges = (viewFlags &amp; FADING_EDGE_HORIZONTAL) != <span class="number">0</span>;  </div><div class="line">    <span class="keyword">boolean</span> verticalEdges = (viewFlags &amp; FADING_EDGE_VERTICAL) != <span class="number">0</span>;  </div><div class="line">    <span class="keyword">if</span> (!verticalEdges &amp;&amp; !horizontalEdges) &#123;  </div><div class="line">        <span class="comment">// Step 3, draw the content  </span></div><div class="line">        <span class="keyword">if</span> (!dirtyOpaque) onDraw(canvas);  </div><div class="line">        <span class="comment">// Step 4, draw the children  </span></div><div class="line">        dispatchDraw(canvas);  </div><div class="line">        <span class="comment">// Step 6, draw decorations (scrollbars)  </span></div><div class="line">        onDrawScrollBars(canvas);  </div><div class="line">        <span class="comment">// we're done...  </span></div><div class="line">        <span class="keyword">return</span>;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，第一步是从第9行代码开始的，这一步的作用是对视图的背景进行绘制。这里会先得到一个mBGDrawable对象，然后根据layout过程确定的视图位置来设置背景的绘制区域，之后再调用Drawable的draw()方法来完成背景的绘制工作。那么这个mBGDrawable对象是从哪里来的呢？其实就是在XML中通过android:background属性设置的图片或颜色。当然你也可以在代码中通过setBackgroundColor()、setBackgroundResource()等方法进行赋值。</p>
+<p>接下来的第三步是在第34行执行的，这一步的作用是对视图的内容进行绘制。可以看到，这里去调用了一下onDraw()方法，那么onDraw()方法里又写了什么代码呢？进去一看你会发现，原来又是个空方法啊。其实也可以理解，因为每个视图的内容部分肯定都是各不相同的，这部分的功能交给子类来去实现也是理所当然的。</p>
+<p>第三步完成之后紧接着会执行第四步，这一步的作用是对当前视图的所有子视图进行绘制。但如果当前的视图没有子视图，那么也就不需要进行绘制了。因此你会发现View中的dispatchDraw()方法又是一个空方法，而ViewGroup的dispatchDraw()方法中就会有具体的绘制代码。</p>
+<p>以上都执行完后就会进入到第六步，也是最后一步，这一步的作用是对视图的滚动条进行绘制。那么你可能会奇怪，当前的视图又不一定是ListView或者ScrollView，为什么要绘制滚动条呢？其实不管是Button也好，TextView也好，任何一个视图都是有滚动条的，只是一般情况下我们都没有让它显示出来而已。绘制滚动条的代码逻辑也比较复杂，这里就不再贴出来了，因为我们的重点是第三步过程。</p>
+<p>通过以上流程分析，相信大家已经知道，View是不会帮我们绘制内容部分的，因此需要每个视图根据想要展示的内容来自行绘制。如果你去观察TextView、ImageView等类的源码，你会发现它们都有重写onDraw()这个方法，并且在里面执行了相当不少的绘制逻辑。绘制的方式主要是借助Canvas这个类，它会作为参数传入到onDraw()方法中，供给每个视图使用。Canvas这个类的用法非常丰富，基本可以把它当成一块画布，在上面绘制任意的东西，那么我们就来尝试一下吧。</p>
+<p>这里简单起见，我只是创建一个非常简单的视图，并且用Canvas随便绘制了一点东西，代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyView</span> <span class="keyword">extends</span> <span class="title">View</span> </span>&#123;  </div><div class="line">  </div><div class="line">    <span class="keyword">private</span> Paint mPaint;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyView</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;  </div><div class="line">        <span class="keyword">super</span>(context, attrs);  </div><div class="line">        mPaint = <span class="keyword">new</span> Paint(Paint.ANTI_ALIAS_FLAG);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;  </div><div class="line">        mPaint.setColor(Color.YELLOW);  </div><div class="line">        canvas.drawRect(<span class="number">0</span>, <span class="number">0</span>, getWidth(), getHeight(), mPaint);  </div><div class="line">        mPaint.setColor(Color.BLUE);  </div><div class="line">        mPaint.setTextSize(<span class="number">20</span>);  </div><div class="line">        String text = <span class="string">"Hello View"</span>;  </div><div class="line">        canvas.drawText(text, <span class="number">0</span>, getHeight() / <span class="number">2</span>, mPaint);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，我们创建了一个自定义的MyView继承自View，并在MyView的构造函数中创建了一个Paint对象。Paint就像是一个画笔一样，配合着Canvas就可以进行绘制了。这里我们的绘制逻辑比较简单，在onDraw()方法中先是把画笔设置成黄色，然后调用Canvas的drawRect()方法绘制一个矩形。然后在把画笔设置成蓝色，并调整了一下文字的大小，然后调用drawText()方法绘制了一段文字。<br>就这么简单，一个自定义的视图就已经写好了，现在可以在XML中加入这个视图，如下所示：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>  </span></div><div class="line">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span>  </div><div class="line">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span> &gt;  </div><div class="line">  </div><div class="line">    <span class="tag">&lt;<span class="name">com.example.viewtest.MyView</span>   </span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"200dp"</span>  </div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"100dp"</span>  </div><div class="line">        /&gt;  </div><div class="line">  </div><div class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></div></pre></td></tr></table></figure>
+<hr>
+<p>参考链接：<a href="http://blog.csdn.net/guolin_blog/article/details/16330267" target="_blank" rel="external">1</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">大路</a></p>
+        <p><span>发布时间:</span>2014-12-23, 18:44:12</p>
+        <p><span>最后更新:</span>2015-11-25, 18:44:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2014/12/23/android-View-learn-two/" title="android中View的使用及解释②">http://dalufan.com/2014/12/23/android-View-learn-two/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://dalufan.com/2014/12/23/android-View-learn-two/　　作者: 大路" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2014/12/23/android-View-learn-one/">
+                    android中View的使用及解释①
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2014/12/21/android-ContentProvider-learn/">
+                    android ContentProvider基本使用
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#一-onMeasure"><span class="toc-number">1.</span> <span class="toc-text">一. onMeasure()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二-onLayout"><span class="toc-number">2.</span> <span class="toc-text">二. onLayout()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三-onDraw"><span class="toc-number">3.</span> <span class="toc-text">三. onDraw()</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"android中View的使用及解释②　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2014/12/23/android-View-learn-two/" data-title="android中View的使用及解释②" data-url="http://dalufan.com/2014/12/23/android-View-learn-two/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"dalufan"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2014/12/23/android-View-learn-one/" title="上一篇: android中View的使用及解释①">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2014/12/21/android-ContentProvider-learn/" title="下一篇: android ContentProvider基本使用">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/07/android-startActivityForResult-FragmentActivity-Fragment/">彻底搞懂startActivityForResult在FragmentActivity和Fragment中的异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/03/android-dynamicicon-example/">android动态更新APP图标和label</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/android-ViewPager-Fragment-LazyLoad/">ViewPager+Fragment LazyLoad 最优解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/08/java-singleton-good-write/">Java更好的单例写法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/02/android-recycleview-useage-issues/">RecycleView的使用及坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/android-click-icon-restart/">防止App在后台运行，点击应用桌面图标重新启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/android-some-little-knowledge/">Android的一些开发细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/30/mysql-join-usage/">图解SQL的Join</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/swift-string-create-class/">Swift:通过字符串创建类对象  </a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/android-fragment-backpress/">Fragment监听返回键事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/08/ios-constraint-autolayout-autoresizing/">autolayout和autoresizing的使用注意事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/xcode-eclipse-key-xcodeKit/">xcode中快速删除拷贝一行，like eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/ios-imageNamed-imageWithContentsOfFile-diff/">imageNamed和imageWithContentsOfFile的使用和区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/07/android-rotate-imageview/">Android 自定义可旋转的ImageView</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/mysql-case-when-and-left-join-demo/">mysql中UNIQUE、判断、组合查找的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/27/android-fragment-state-saving-best-practices/">fragment状态保存最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/03/mysql-base-usage-03/">《mysql 必知必会》读书笔记三（21-30）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/30/mysql-base-usage-02/">《mysql 必知必会》读书笔记二（13-20）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/28/mysql-base-usage-01/">《mysql 必知必会》读书笔记一（1-12）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/21/android-listview-usage/">android listview的一些技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/11/android-react-native-learn-day02/">react-native学习笔记二</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/26/android-react-native-learn-day01/">react-native学习笔记一</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/17/android-widget-imageview-1/">自定义ImageView系列第一版</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/26/web-maven-springmvc-start-learn/">使用maven配置springmvc的过程中遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/23/java-uml-learn/">UML中的五种关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/17/android-art-of-android-deveopment-note-2/">《Android 开发艺术探索》读书笔记--第二章 IPC机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/13/effective-java-learn-note-10-01/">《Effective Java》读书笔记--第十章 并发（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/20/android-art-of-android-deveopment-note-12/">《Android 开发艺术探索》读书笔记--第十二章 Bitmap 第十五章 性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/11/thinking-of-getting-the-current-activity-in-android/">如何获取当前Activity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/08/workflow-feature-branch-Pull-Request/">WorkFlow--功能分支工作流(Pull Requests)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/02/workflow-Pull-Request/">Pull Requests的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/20/android-art-of-android-deveopment-note-10/">《Android 开发艺术探索》读书笔记--第十章Android的消息机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android-art-of-android-deveopment-note-4/">《Android 开发艺术探索》读书笔记--第四章 View的工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/workflow-centralized-git-rebase/">WorkFlow--集中式工作流(git rebase)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/03/android-activity-onActivityResult/">Activity中onActivityResult存在的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/22/android-webview-upload-file/">Webview中上传文件支持全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/18/android-art-of-android-deveopment-note-3/">《Android 开发艺术探索》读书笔记--第三章View事件体系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/02/java-JSONObject-Stub/">java工程中调用Android库出现“Stub!”错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-optimization-thread-ThreadPoolExecutor/">android性能优化--使用线程池处理异步任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/26/android-View-LinearGradient/">android中使用LinearGradient实现文字闪烁的效果</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/24/android-Activity-launch-learn/">Activity启动过程全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/23/android-DownloadManager-usage/">android中使用DownloadManager来下载</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/22/android-context-learn/">Android Context完全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-achievement/">Android项目重构的整理-实现篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-view/">Android项目重构的整理-界面篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-architecture/">Android项目重构的整理-架构篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-webview-js-safe-message/">Webview与Js之间的另一种交互</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-error-UncaughtExceptionHandler/">android中处理崩溃的一般方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/18/android-mat-usage/">MAT的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/17/android-gc-leak/">android 内存泄露以及GC的相关知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/12/android-onSaveInstanceState-learn/">Activity和Fragement中onSaveInstanceState()的使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/07/app-hearsay/">道听途说</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can't create handler inside thread that has not</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-view-issues/">android中view相关的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/18/android-dex-inject-learn/">android dex注入实现详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/17/android-canvas-draw/">android中canvas的一些属性和用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/11/android-onTouchEvent/">Android触摸事件的响应机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/10/free-mail-mailinator/">mailinator 免费邮箱的使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-setOnPageChangeListener/">ViewPager的setOnPageChangeListener方法详解 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-Activity-ActionBarActivity-AppCompatActivity/">android中关于Activity/ActionBarActivity/AppCompatActivity的区分与理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/07/android-BitmapFactory-OutOfMemoryError/">android BitmapFactory的OutOfMemoryError的解决方案 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/03/git-android-as/">在android Studio 和 Eclipse 的 git 插件操作'代码提交'以及'代码冲突' </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/01/android-QR-changesize/">Zxing二维码扫描框大小修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/retrofit-usage/">Retrofit 中文文档</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/git-reset-soft-mixed-hard/">Difference between git reset soft, mixed and hard</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/27/android-so-usage/">关于android的.so文件你所需要知道的</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/26/android-EmailAutoCompleteTextView/">android 邮箱地址自动补全</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/24/android-setCompoundDrawables-setCompoundDrawablesWithIntrinsicBounds/">android setCompoundDrawables与setCompoundDrawablesWithIntrinsicBounds的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/20/android-Drawable-usage/">android Drawable 那些不为人知的高效用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/29/hello-world/">Hexo的使用方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/10/eclipse-cannot-open-git-upload-pack/">eclipse git push和pull出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/01/android-listview-ontouchevent/">android中对GridView， ListView等滚动控件的Touch事件onInterceptTouchEvent，onTouchEvent理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/29/android-javascript-exchange/">Android与Javascript交互概要</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/21/android-performance-optimization-SparseArray/">android应用性能优化中使用SparseArray替代HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/12/java-regex-useage/">Java正则表达式的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/05/android-motionevent/">MotionEvent中getX()、getRawX()等位置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/26/android-service-download-singlethread/">android中Service断点下载-单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/18/service-not-be-killed/">android保证Service不被杀掉的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/12/android-Intent-PendingIntent/">android中Intent和PendingIntent的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/10/android-AlarmManager/">android中AlarmManager的说明例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/android-handler-learn/">android中Handler的使用Tips</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/14/android-sqlite-err/">sqlite遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/14/android-sqlite-learn/">sqlite的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/11/android-thread-volatile-synchronized-final/">进程通信中volatile, synchronized, final的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/17/java-Process/">java.lang.Process 阻塞问题 & Runtime.exec()的陷阱</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/16/android-excel/">android操作Excel文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/14/android-Smail-learn/">Smail语法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-ContentObserver-learn/">android中ContentObserver类详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/30/android-app-usagestats/">android 获取各应用的运行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/29/ubuntu-android-driver/">ubuntu下解决不能识别android设备</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-View-learn-three/">android中简单自定义view③</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-DownloadManager/">android DownloadManager广播事件：下载完成、通知栏点击事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-one/">android中View的使用及解释①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-ContentProvider-learn/">android ContentProvider基本使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-Uri-learn/">android中Uri的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/20/android-mediaplayer-usage/">android MediaPlayer基本使用方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/30/net-get-post/">GET请求和POST请求的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/28/android-sec-commonly/">android一些安全事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-Intent/">android中Intent使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-BroadcastReceiver/">android中BroadcastReceiver应用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-activity-task/">android中Activity的task</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/25/android-activity-launchMode/">android中Activity的四种launchMode</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/18/android-permission/">android声明和使用权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/14/android-view-IllegalArgumentException/">View not attached to window manager</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/12/httpclient-learn-conclusion/">httpclient使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/10/android-MediaRecorder-stop-error/">android录音时stop出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/08/android-xutils-http-learn/">xutils中HttpUtils模块分析①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/10/20/android-error/">android异常/错误集</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/30/java-Generics/">java中泛型Generics的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/26/java-ThreadPoolExecutor/">android里面ThreadPoolExecutor的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/24/java-volatile-static/">java中volatile和static的区别 </a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/21/java-shutdown/">线程池shutdown()方法和shutdownNow()区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-volatile/">java 里面volatile的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-AtomicInteger/">java 里面AtomicInteger的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/07/java-string-format/">java中string.format方法使用介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/06/java-Serializable/">java 里面Serializable的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/05/eclipse-git-merge/">eclipse中git解决冲突</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/04/java-enum-final/">java中枚举和常量定义的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/03/java-enum/">java中enum的用法详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/05/17/git-api/">git常用命令及思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/java-trans/">java是传值还是传引用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/session-cookie/">详解COOKIE与SESSION的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/02/16/string-stringbuffer/">String和StringBuffer的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/08/24/java-reflection/">Java反射Demo</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/ubuntu_order/">ubuntu命令学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/sublime-text-2/">Sublime Text 2使用简介</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

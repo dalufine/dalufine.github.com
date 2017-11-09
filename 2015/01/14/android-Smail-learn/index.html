@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta name="description" content="前言Dalvik字节码Dalvik是google专门为android操作系统设计的一个虚拟机，经过深度的优化。虽然android上的程序是使用java来开发的，但是Dalvik和标准的java虚拟机JVM还是两回事。Dalvik VM是基于寄存器的，而JVM是基于栈的；Dalvik有专属的文件执行格式dex（dalvik executable），而JVM则执行的是java字节码。Dalvik VM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Smail语法">
+<meta property="og:url" content="http://dalufan.com/2015/01/14/android-Smail-learn/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:description" content="前言Dalvik字节码Dalvik是google专门为android操作系统设计的一个虚拟机，经过深度的优化。虽然android上的程序是使用java来开发的，但是Dalvik和标准的java虚拟机JVM还是两回事。Dalvik VM是基于寄存器的，而JVM是基于栈的；Dalvik有专属的文件执行格式dex（dalvik executable），而JVM则执行的是java字节码。Dalvik VM">
+<meta property="og:updated_time" content="2015-01-14T10:44:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Smail语法">
+<meta name="twitter:description" content="前言Dalvik字节码Dalvik是google专门为android操作系统设计的一个虚拟机，经过深度的优化。虽然android上的程序是使用java来开发的，但是Dalvik和标准的java虚拟机JVM还是两回事。Dalvik VM是基于寄存器的，而JVM是基于栈的；Dalvik有专属的文件执行格式dex（dalvik executable），而JVM则执行的是java字节码。Dalvik VM">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Smail语法 | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-android-Smail-learn" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/01/14/android-Smail-learn/" class="article-date">
+      <time datetime="2015-01-14T10:44:12.000Z" itemprop="datePublished">2015-01-14</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Smail语法
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Smali/">Smali</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Dalvik字节码Dalvik是google专门为android操作系统设计的一个虚拟机，经过深度的优化。虽然android上的程序是使用java来开发的，但是Dalvik和标准的java虚拟机JVM还是两回事。Dalvik VM是基于寄存器的，而JVM是基于栈的；Dalvik有专属的文件执行格式dex（dalvik executable），而JVM则执行的是java字节码。Dalvik VM比JVM速度更快，占用空间更少。</p>
+<p>通过Dalvik的字节码我们不能直接看到原来的逻辑代码，这时需要借助如Apktool或dex2jar+jd-gui工具来帮助查看。但是，注意的是最终我们修改APK需要操作的文件是.smali文件，而不是导出来的Java文件重新编译（况且这基本上不可能）。</p>
+<a id="more"></a> 
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">.class public Lcom/disney/WMW/WMWActivity; </div><div class="line">.super Lcom/disney/common/BaseActivity;</div><div class="line">.source "WMWActivity.java"</div><div class="line"></div><div class="line"># interfaces</div><div class="line">.implements Lcom/burstly/lib/ui/IBurstlyAdListener;</div><div class="line"></div><div class="line"># annotations</div><div class="line">.annotation system Ldalvik/annotation/MemberClasses;</div><div class="line">    value = &#123;</div><div class="line">    Lcom/disney/WMW/WMWActivity$MessageHandler;,</div><div class="line">    Lcom/disney/WMW/WMWActivity$FinishActivityArgs;</div><div class="line">    &#125;</div><div class="line">.end annotation</div></pre></td></tr></table></figure>
+<p>1-3行定义的是基本信息：这是一个由WMWActivity.java编译得到的smali文件（第3行），它是com.disney.WMW这个package下的一个类（第1行），继承自com.disney.common.BaseActivity（第2行）。      5-6行定义的是接口信息：这个WMWActivity实现了一个com.burstly.lib.ui这个package下（一个广告SDK）的IBurstyAdListener接口。<br>8-14行定义的则是内部类：它有两个成员内部类——MessageHandler和FinishActivityArgs，内部类将在后面小节中会有提及。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">WMWActivity</span> <span class="keyword">extends</span> <span class="title">BaseActivity</span> <span class="keyword">implements</span> <span class="title">IBurstlyAdListener</span></span>&#123;</div><div class="line">    <span class="comment">//...</span></div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">MessageHandler</span> </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;</div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">FinishActivityArgs</span></span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="一-数据类型"><a href="#一-数据类型" class="headerlink" title="一. 数据类型"></a>一. 数据类型</h3><h4 id="原始类型："><a href="#原始类型：" class="headerlink" title="原始类型："></a>原始类型：</h4><pre><code>V   void，只能用于返回值类型
+Z 　boolean
+B   byte
+S   short
+C   char
+I   int
+J   long（64位）
+F   float
+D   double(64位)
+</code></pre><h4 id="引用类型："><a href="#引用类型：" class="headerlink" title="引用类型："></a>引用类型：</h4><pre><code>对象 和 数组
+</code></pre><p>对象:<code>L + 包名.对象</code></p>
+<p>对象的表示则以L作为开头，格式是<code>LpackageName/objectName;</code>（注意<code>必须有个分号</code>跟在最后），例如String对象在smali中为：<code>Ljava/lang/String;</code>，其中java/lang对应java.lang包，String就是定义在该包中的一个对象。</p>
+<p>数组：<code>[ + 数据类型</code></p>
+<p>数组的表示方式是：在基本类型前加上前中括号“[”，例如int数组和float数组分别表示为：[I、[F,<br><code>[I</code>表示一个整型一维数组，相当于java中的int[]。  对于多维数组，只要增加[就行了。<code>[[I</code>相当于<code>int[][]</code>，[[[I相当于int[][][]。注意每一维的最多<code>255</code>个对象数组的表示：[Ljava/lang/String;表示一个String对象数组。</p>
+<h3 id="二-方法"><a href="#二-方法" class="headerlink" title="二. 方法"></a>二. 方法</h3><h4 id="方法定义："><a href="#方法定义：" class="headerlink" title="方法定义："></a>方法定义：</h4><p>表示形式：<code>Lpackage/name/ObjectName;-&gt;MethodName(III)Z</code></p>
+<ul>
+<li>Lpackage/name/ObjectName;表示类型，</li>
+<li>MethodName是方法名。</li>
+<li>III为参数（在此是3个整型参数），</li>
+<li>Z是返回类型（bool型）。</li>
+</ul>
+<p>方法的参数是一个接一个的，中间没有隔开。一个更复杂的例子：</p>
+<pre><code>method(I[[IILjava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+</code></pre><p>在java中则为：<code>String method(int, int[][], int, String, Object[])</code></p>
+<h4 id="内部类："><a href="#内部类：" class="headerlink" title="内部类："></a>内部类：</h4><p>既然类是用LpackageName/objectName;来表示，那类里面的内部类又如何在smali中引用呢？答案是：LpackageName/objectName$subObjectName;。也就是在内部类前加“<code>$</code>”符号</p>
+<h4 id="字段："><a href="#字段：" class="headerlink" title="字段："></a>字段：</h4><p>表示形式： Lpackage/name/ObjectName;-&gt;FieldName:Ljava/lang/String;  即包名，字段名和各字段类型。</p>
+<h4 id="标记说明："><a href="#标记说明：" class="headerlink" title="标记说明："></a>标记说明：</h4><pre><code># static fields             定义静态变量的标记
+# instance fields        定义实例变量的标记
+</code></pre><p>一般来说，获取的指令有：iget、sget、iget-boolean、sget-boolean、iget-object、sget-object等，操作的指令有：iput、sput、iput-boolean、sput-boolean、iput-object、sput-object等。没有“-object”后缀的表示操作的成员变量对象是基本数据类型，带“-object”表示操作的成员变量是对象类型，特别地，boolean类型则使用带“-boolean”的指令操作。构造函数的返回类型为V，名字为<init>。</init></p>
+<pre><code>sget-object v0, Lcom/disney/WMW/WMWActivity;-&gt;PREFS_INSTALLATION_ID:Ljava/lang/String;
+</code></pre><p>sget-object就是用来获取变量值并保存到紧接着的参数的寄存器中，在这里，把上面出现的PREFS_INSTALLATION_ID这个String成员变量获取并放到v0这个寄存器中，<code>注意：前面需要该变量所属的类的类型，后面需要加一个冒号和该成员变量的类型</code>，中间是“<code>-&gt;</code>”表示所属关系。</p>
+<p>获取instance fields的指令与static fields的基本一样，只是由于不是static变量，<code>不能仅仅指出该变量所在类的类型，还需要该变量所在类的实例</code>。看例子：</p>
+<pre><code>iget-object v0, p0, Lcom/disney/WMW/WMWActivity;-&gt;_view:Lcom/disney/common/WMWView;
+</code></pre><p>可以看到iget-object指令比sget-object多了一个参数，就是该变量所在类的实例，在这里就是p0即“this”。</p>
+<p>获取array的还有aget和aget-object，指令使用和上述类似，不细述。</p>
+<p>put指令的使用和get指令是统一的，直接看例子不解释：</p>
+<pre><code>const/4 v3, 0x0
+sput-object v3, Lcom/disney/WMW/WMWActivity;-&gt;globalIapHandler:Lcom/disney/config/GlobalPurchaseHandler;
+</code></pre><p>相当于：this.globalIapHandler = null;（null = 0x0）</p>
+<pre><code># direct methods       定义静态方法的标记
+# virtual methods      定义非静态方法的标记
+</code></pre><p>直白地讲，direct method就是private函数，其余的public和protected函数都属于virtual method。所以在调用函数时，有invoke-direct，invoke-virtual，另外还有invoke-static、invoke-super以及invoke-interface等几种不同的指令。当然其实还有invoke-XXX/range 指令的，这是参数多于4个的时候调用的指令，比较少见，了解下即可。</p>
+<p><code>invoke-static</code>：顾名思义就是调用static函数的，因为是static函数，所以比起其他调用少一个参数，例如：</p>
+<pre><code>invoke-static {}, Lcom/disney/WMW/UnlockHelper;-&gt;unlockCrankypack()Z
+</code></pre><p>这里注意到invoke-static后面有一对大括号“{}”，其实是调用该方法的实例+参数列表，由于这个方法既不需参数也是static的，所以{}内为空.</p>
+<p><code>invoke-super</code>：调用父类方法用的指令，在onCreate、onDestroy等方法都能看到，略。</p>
+<p><code>invoke-direct</code>：调用private函数的，例如：</p>
+<pre><code>invoke-direct {p0}, Lcom/disney/WMW/WMWActivity;-&gt;getGlobalIapHandler()Lcom/disney/config/GlobalPurchaseHandler;
+</code></pre><p>这里GlobalPurchaseHandler getGlobalIapHandler()就是定义在WMWActivity中的一个private函数，如果修改smali时错用invoke-virtual或invoke-static将在回编译后程序运行时引发一个常见的VerifyError.</p>
+<p><code>invoke-virtual</code>：用于调用protected或public函数，同样注意修改smali时不要错用invoke-direct或invoke-static，例子：</p>
+<pre><code>sget-object v0, Lcom/disney/WMW/WMWActivity;-&gt;shareHandler:Landroid/os/Handler;
+invoke-virtual {v0, v3}, Landroid/os/Handler;-&gt;removeCallbacksAndMessages(Ljava/lang/Object;)V
+</code></pre><p>这里相信大家都已经明白了，主要搞清楚v0是shareHandlerandroid/os/Handler，v3是传递给removeCallbackAndMessage方法的Ljava/lang/Object参数就可以了。</p>
+<h4 id="语法：If语句"><a href="#语法：If语句" class="headerlink" title="语法：If语句"></a>语法：If语句</h4><pre><code>if-eq p1, v0, :cond_8 表示如果p1和v0相等，则执行cond_8的流程：
+    :cond_8
+    invoke-direct {p0}, Lcom/paul/test/a;-&gt;d()V
+</code></pre><p>调用com.paul.test.a的d()方法</p>
+<pre><code>if-ne p1, v0, :cond_b 表示不相等则执行cond_b的流程：
+    :cond_b
+    const/4 v0, 0x0
+    invoke-virtual {p0, v0}, Lcom/paul/test/a;-&gt;setPressed(Z)V
+    invoke-super {p0, p1, p2}, Landroid/view/View;-&gt;onKeyUp(ILandroid/view/KeyEvent;)Z
+    move-result v0
+</code></pre><p>大概意思就是调用com.paul.test.a的setPressed方法，然后再调用父类View的onKeyUp方法，最后 return v0</p>
+<h3 id="三-寄存器（重点）"><a href="#三-寄存器（重点）" class="headerlink" title="三. 寄存器（重点）"></a>三. 寄存器（重点）</h3><h4 id="概念："><a href="#概念：" class="headerlink" title="概念："></a>概念：</h4><p>在dalvik字节码中，寄存器都是32位的，能够支持任何类型。64位类型（Long和Double型）用2个寄存器表示。有两种方式指定一个方法中有多少寄存器是可用的。<code>registers</code>指令指定了方法中寄存器的总数。 [注意：一个方法内，不允许超过15个；如果超过15个，需要做特殊处理，处理方法找google大神，度娘],<code>locals</code>指令表明了方法中非参寄存器的数量。</p>
+<h4 id="命名方式"><a href="#命名方式" class="headerlink" title="命名方式"></a>命名方式</h4><p>在smali里的所有操作都必须经过寄存器来进行：<code>本地寄存器</code>用v开头数字结尾的符号来表示，如v0、v1、v2、…<code>参数寄存器</code>则使用p开头数字结尾的符号来表示，如p0、p1、p2、…特别注意的是，p0不一定是函数中的第一个参数，在非static函数中，p0代指“this”，p1表示函数的第一个参数，p2代表函数中的第二个参数…而在static函数中p0才对应第一个参数（因为Java的static方法中没有this方法）。本地寄存器没有限制，理论上是可以任意使用的。</p>
+<pre><code>const/4 v0, 0x0
+iput-boolean v0, p0, Lcom/disney/WMW/WMWActivity;-&gt;isRunning:Z
+</code></pre><p>在上面的两句中，使用了v0本地寄存器，并把值0x0存到v0中，然后第二句用iput-boolean这个指令把v0中的值存放到com.disney.WMW.WMWActivity.isRunning这个成员变量中。即相当于：this.isRunning = false;（上面说过，<code>在非static函数中p0代表的是“this”</code>，在这里就是com.disney.WMW.WMWActivity实例）。</p>
+<p><strong>Long/Double值</strong>:Long和double类型是64位的，需要2个寄存器（切记切记）。<br>例如，对于非静态方法LMyObject;-&gt;MyMethod(IJZ)V，参数分别是LMyObject;，int，long，boolean。故该方法需要5个寄存器来存储参数。</p>
+<pre><code>p0  this
+p1  I
+p2,p3   J
+p4  Z
+</code></pre><h3 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h3><p>1.If语句 </p>
+<pre><code>if-nez v0,:cond_0    如果结果不为0，就跳转到cond_0标号处
+if-eqz v0,:cond_1    如果结果为0，就跳转到cond_1标号处    
+</code></pre><p>2.数据操作指令</p>
+<pre><code>move v0,v1    将v1的值赋给v0 ，两个寄存器都为4位
+
+move-result v0    将上一个invoke类型指令操作的单字非对象结果赋给v0
+move-result-object v0    将上一个invoke类型指令操作的对象结果（返回值）赋给v0    
+</code></pre><p>3.返回指令</p>
+<pre><code>return-void
+return v0
+return-object v0    
+</code></pre><p>4.实例操作指令</p>
+<pre><code>check-cast v1, Landroid/widget/TextView;  将v1寄存器中的对象引用转化成指定的类型（这里是 TextView）
+new-instance v1, Ljava/lang/StringBuilder; 构造一个指定类型对象的新实例    
+</code></pre><p>5.数组操作指令</p>
+<pre><code>new-array v0,v0,[I  构造Int类型，大小是v0的数组，并将值赋给v0寄存器
+array-length v1,v0  获取v0数组的长度且将值赋给v1    
+</code></pre><p>6.异常指令</p>
+<pre><code>throw vAA 抛出vAA寄存器中指定类型的异常    
+</code></pre><p>7.跳转指令</p>
+<pre><code>1,goto :goto_0  偏移量goto_0不能为0 
+2,If语句
+3,switch    
+    packed-switch v0, :pswitch_data_0  v0是switch需要判断的值     :pswitch_data_0 偏移表，表中值是有规律递增的。
+    sparse-switch v0, :pswitch_data_0  偏移表中值是无规律的。
+</code></pre><p>8,比较指令</p>
+<pre><code>cmpl-float v0,v2,v3     比较v2和v3，如果v2&gt;v3，v0=-1；反之，v0=1；相等，v0=0
+cmpg-float v0,v2,v3  比较v2和v3，如果v2&gt;v3，v0=1；反之，v0=-1；相等，v0=0
+cmpl-double v0,v2,v3  同理
+cmpg-double v0,v2,v3  同理
+cmp-long v0,v2,v3    比较v2和v3，如果v2&gt;v3，v0=1；反之，v0=-1；相等，v0=0
+</code></pre><p>在Java代码中调用函数和返回函数结果是一条语句完成的，而在smali里则需要分开来完成，在使用上述指令后，如果调用的函数返回非void，那么还需要用到move-result（返回基本数据类型）和move-result-object（返回对象）指令：</p>
+<pre><code>const/4 v2, 0x0
+invoke-virtual {p0, v2}, Lcom/disney/WMW/WMWActivity;-&gt;getPreferences(I)Landroid/content/SharedPreferences;
+move-result-object v1
+</code></pre><p>v1保存的就是调用getPreferences(int)方法返回的SharedPreferences实例。</p>
+<pre><code>invoke-virtual {v2}, Ljava/lang/String;-&gt;length()I
+move-result v2
+</code></pre><p>v2保存的则是调用String.length()返回的整型。</p>
+<h4 id="smali中函数实体分析"><a href="#smali中函数实体分析" class="headerlink" title="smali中函数实体分析"></a>smali中函数实体分析</h4><p>下面开始介绍函数实体，其实没有什么特别的地方，只是在植入代码时有一点需要特别注意，举例说明：</p>
+<pre><code>.method protected onDestroy()V     
+.locals 0     
+
+.prologue     
+.line 277     
+invoke-super {p0}, Lcom/disney/common/BaseActivity;-&gt;onDestroy()V     
+
+.line 279     
+return-void     
+.end method
+</code></pre><p>这是onDestroy()函数，它的作用大家都知道。首先看到函数内第一句：.locals 0，这句话很重要，标明了你在这个函数中最少要用到的本地寄存器的个数。在这里，由于只需要调用一个父类的onDestroy()处理，所以只需要用到p0，所以使用到的本地寄存器数为0。如果不清楚这个规则，很容易在植入代码后忘记修改.local 的值，那么回编译后运行时将会得到一个VerifyError错误，而且极难发现问题所在。例如往onDestroy()增加一句：this.existed = true;那么应该改为（注意修改.local的值为1——使用到了v0这一个本地寄存器）：</p>
+<pre><code>.method protected onDestroy()V
+.locals 1
+.prologue
+.line 277
+const/4 v0, 0x1
+iput-boolean v0, p0, Lcom/disney/WMW/WMWActivity;-&gt;exited:Z
+invoke-super {p0}, Lcom/disney/common/BaseActivity;-&gt;onDestroy()V
+.line 279
+return-void
+.end method
+</code></pre><p>.line 这个标识，它是标注了该代码在原Java文件中的行数，它也很有用，想想使用IDE开发时，遇到错误崩溃时，在catLog不是有提示哪个文件哪一行崩溃的么？Dalvik VM运行到.line XX时就将这个值存起来，如果在这一行运行时出错了，就往catLog输出这个值，这样我们就能看到具体是哪一行的问题了。jd-gui这个工具也是通过分析这些信息将smali代码还原成我们喜闻乐见的Java代码的。当然，它不是必须的，去掉也没有关系，只不过为了方便调试还是保留一下吧。<br>以上一些smali语法规则可以点击参照<br><a href="http://code.google.com/p/smali/wiki/TypesMethodsAndFields" target="_blank" rel="external">http://code.google.com/p/smali/wiki/TypesMethodsAndFields</a></p>
+<pre><code>.class public LHelloWorld;
+#Ye olde hello world application
+#To assemble and run this on a phone or emulator:
+#s
+#java -jar smali.jar -o classes.dex HelloWorld.smali
+#zip HelloWorld.zip classes.dex
+#adb push HelloWorld.zip /data/local
+#adb shell dalvikvm -cp /data/local/HelloWorld.zip HelloWorld
+#
+#if you get out of memory type errors when running smali.jar, try
+#java -Xmx512m -jar smali.jar HelloWorld.smali
+#instead
+.super Ljava/lang/Object;
+.method public static main([Ljava/lang/String;)V
+    .registers 2
+    sget-object v0, Ljava/lang/System;-&gt;out:Ljava/io/PrintStream;
+    const-string    v1, &quot;Hello World!&quot;
+    invoke-virtual {v0, v1}, Ljava/io/PrintStream;-&gt;println(Ljava/lang/String;)V
+    return-void
+.end method
+</code></pre><hr>
+<p>参考链接：<a href="http://www.blogjava.net/midea0978/archive/2012/01/04/367847.html" target="_blank" rel="external">官方语法链接</a>,<a href="http://www.cnblogs.com/codeAnimal/p/4053858.html" target="_blank" rel="external">语法</a>,<a href="http://blog.csdn.net/beijingshi1/article/details/39400981" target="_blank" rel="external">详解</a>,<a href="http://blog.csdn.net/banketree/article/details/10919297" target="_blank" rel="external">静态分析</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2015/01/14/android-Smail-learn/">Smail语法</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">大路</a></p>
+        <p><span>发布时间:</span>2015-01-14, 18:44:12</p>
+        <p><span>最后更新:</span>2015-01-14, 18:44:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2015/01/14/android-Smail-learn/" title="Smail语法">http://dalufan.com/2015/01/14/android-Smail-learn/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://dalufan.com/2015/01/14/android-Smail-learn/　　作者: 大路" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2015/01/16/android-excel/">
+                    android操作Excel文件
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2015/01/12/android-ContentObserver-learn/">
+                    android中ContentObserver类详解
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例子"><span class="toc-number">2.</span> <span class="toc-text">例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一-数据类型"><span class="toc-number">3.</span> <span class="toc-text">一. 数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#原始类型："><span class="toc-number">3.1.</span> <span class="toc-text">原始类型：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#引用类型："><span class="toc-number">3.2.</span> <span class="toc-text">引用类型：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二-方法"><span class="toc-number">4.</span> <span class="toc-text">二. 方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#方法定义："><span class="toc-number">4.1.</span> <span class="toc-text">方法定义：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#内部类："><span class="toc-number">4.2.</span> <span class="toc-text">内部类：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#字段："><span class="toc-number">4.3.</span> <span class="toc-text">字段：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#标记说明："><span class="toc-number">4.4.</span> <span class="toc-text">标记说明：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#语法：If语句"><span class="toc-number">4.5.</span> <span class="toc-text">语法：If语句</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三-寄存器（重点）"><span class="toc-number">5.</span> <span class="toc-text">三. 寄存器（重点）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#概念："><span class="toc-number">5.1.</span> <span class="toc-text">概念：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#命名方式"><span class="toc-number">5.2.</span> <span class="toc-text">命名方式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指令"><span class="toc-number">6.</span> <span class="toc-text">指令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#smali中函数实体分析"><span class="toc-number">6.1.</span> <span class="toc-text">smali中函数实体分析</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"Smail语法　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2015/01/14/android-Smail-learn/" data-title="Smail语法" data-url="http://dalufan.com/2015/01/14/android-Smail-learn/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"dalufan"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2015/01/16/android-excel/" title="上一篇: android操作Excel文件">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2015/01/12/android-ContentObserver-learn/" title="下一篇: android中ContentObserver类详解">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/07/android-startActivityForResult-FragmentActivity-Fragment/">彻底搞懂startActivityForResult在FragmentActivity和Fragment中的异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/03/android-dynamicicon-example/">android动态更新APP图标和label</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/android-ViewPager-Fragment-LazyLoad/">ViewPager+Fragment LazyLoad 最优解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/08/java-singleton-good-write/">Java更好的单例写法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/02/android-recycleview-useage-issues/">RecycleView的使用及坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/android-click-icon-restart/">防止App在后台运行，点击应用桌面图标重新启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/android-some-little-knowledge/">Android的一些开发细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/30/mysql-join-usage/">图解SQL的Join</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/swift-string-create-class/">Swift:通过字符串创建类对象  </a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/android-fragment-backpress/">Fragment监听返回键事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/08/ios-constraint-autolayout-autoresizing/">autolayout和autoresizing的使用注意事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/xcode-eclipse-key-xcodeKit/">xcode中快速删除拷贝一行，like eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/ios-imageNamed-imageWithContentsOfFile-diff/">imageNamed和imageWithContentsOfFile的使用和区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/07/android-rotate-imageview/">Android 自定义可旋转的ImageView</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/mysql-case-when-and-left-join-demo/">mysql中UNIQUE、判断、组合查找的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/27/android-fragment-state-saving-best-practices/">fragment状态保存最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/03/mysql-base-usage-03/">《mysql 必知必会》读书笔记三（21-30）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/30/mysql-base-usage-02/">《mysql 必知必会》读书笔记二（13-20）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/28/mysql-base-usage-01/">《mysql 必知必会》读书笔记一（1-12）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/21/android-listview-usage/">android listview的一些技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/11/android-react-native-learn-day02/">react-native学习笔记二</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/26/android-react-native-learn-day01/">react-native学习笔记一</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/17/android-widget-imageview-1/">自定义ImageView系列第一版</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/26/web-maven-springmvc-start-learn/">使用maven配置springmvc的过程中遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/23/java-uml-learn/">UML中的五种关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/17/android-art-of-android-deveopment-note-2/">《Android 开发艺术探索》读书笔记--第二章 IPC机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/13/effective-java-learn-note-10-01/">《Effective Java》读书笔记--第十章 并发（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/20/android-art-of-android-deveopment-note-12/">《Android 开发艺术探索》读书笔记--第十二章 Bitmap 第十五章 性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/11/thinking-of-getting-the-current-activity-in-android/">如何获取当前Activity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/08/workflow-feature-branch-Pull-Request/">WorkFlow--功能分支工作流(Pull Requests)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/02/workflow-Pull-Request/">Pull Requests的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/20/android-art-of-android-deveopment-note-10/">《Android 开发艺术探索》读书笔记--第十章Android的消息机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android-art-of-android-deveopment-note-4/">《Android 开发艺术探索》读书笔记--第四章 View的工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/workflow-centralized-git-rebase/">WorkFlow--集中式工作流(git rebase)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/03/android-activity-onActivityResult/">Activity中onActivityResult存在的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/22/android-webview-upload-file/">Webview中上传文件支持全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/18/android-art-of-android-deveopment-note-3/">《Android 开发艺术探索》读书笔记--第三章View事件体系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/02/java-JSONObject-Stub/">java工程中调用Android库出现“Stub!”错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-optimization-thread-ThreadPoolExecutor/">android性能优化--使用线程池处理异步任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/26/android-View-LinearGradient/">android中使用LinearGradient实现文字闪烁的效果</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/24/android-Activity-launch-learn/">Activity启动过程全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/23/android-DownloadManager-usage/">android中使用DownloadManager来下载</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/22/android-context-learn/">Android Context完全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-achievement/">Android项目重构的整理-实现篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-view/">Android项目重构的整理-界面篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-architecture/">Android项目重构的整理-架构篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-webview-js-safe-message/">Webview与Js之间的另一种交互</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-error-UncaughtExceptionHandler/">android中处理崩溃的一般方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/18/android-mat-usage/">MAT的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/17/android-gc-leak/">android 内存泄露以及GC的相关知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/12/android-onSaveInstanceState-learn/">Activity和Fragement中onSaveInstanceState()的使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/07/app-hearsay/">道听途说</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can't create handler inside thread that has not</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-view-issues/">android中view相关的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/18/android-dex-inject-learn/">android dex注入实现详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/17/android-canvas-draw/">android中canvas的一些属性和用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/11/android-onTouchEvent/">Android触摸事件的响应机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/10/free-mail-mailinator/">mailinator 免费邮箱的使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-setOnPageChangeListener/">ViewPager的setOnPageChangeListener方法详解 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-Activity-ActionBarActivity-AppCompatActivity/">android中关于Activity/ActionBarActivity/AppCompatActivity的区分与理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/07/android-BitmapFactory-OutOfMemoryError/">android BitmapFactory的OutOfMemoryError的解决方案 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/03/git-android-as/">在android Studio 和 Eclipse 的 git 插件操作'代码提交'以及'代码冲突' </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/01/android-QR-changesize/">Zxing二维码扫描框大小修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/retrofit-usage/">Retrofit 中文文档</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/git-reset-soft-mixed-hard/">Difference between git reset soft, mixed and hard</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/27/android-so-usage/">关于android的.so文件你所需要知道的</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/26/android-EmailAutoCompleteTextView/">android 邮箱地址自动补全</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/24/android-setCompoundDrawables-setCompoundDrawablesWithIntrinsicBounds/">android setCompoundDrawables与setCompoundDrawablesWithIntrinsicBounds的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/20/android-Drawable-usage/">android Drawable 那些不为人知的高效用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/29/hello-world/">Hexo的使用方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/10/eclipse-cannot-open-git-upload-pack/">eclipse git push和pull出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/01/android-listview-ontouchevent/">android中对GridView， ListView等滚动控件的Touch事件onInterceptTouchEvent，onTouchEvent理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/29/android-javascript-exchange/">Android与Javascript交互概要</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/21/android-performance-optimization-SparseArray/">android应用性能优化中使用SparseArray替代HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/12/java-regex-useage/">Java正则表达式的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/05/android-motionevent/">MotionEvent中getX()、getRawX()等位置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/26/android-service-download-singlethread/">android中Service断点下载-单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/18/service-not-be-killed/">android保证Service不被杀掉的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/12/android-Intent-PendingIntent/">android中Intent和PendingIntent的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/10/android-AlarmManager/">android中AlarmManager的说明例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/android-handler-learn/">android中Handler的使用Tips</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/14/android-sqlite-err/">sqlite遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/14/android-sqlite-learn/">sqlite的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/11/android-thread-volatile-synchronized-final/">进程通信中volatile, synchronized, final的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/17/java-Process/">java.lang.Process 阻塞问题 & Runtime.exec()的陷阱</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/16/android-excel/">android操作Excel文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/14/android-Smail-learn/">Smail语法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-ContentObserver-learn/">android中ContentObserver类详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/30/android-app-usagestats/">android 获取各应用的运行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/29/ubuntu-android-driver/">ubuntu下解决不能识别android设备</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-View-learn-three/">android中简单自定义view③</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-DownloadManager/">android DownloadManager广播事件：下载完成、通知栏点击事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-one/">android中View的使用及解释①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-ContentProvider-learn/">android ContentProvider基本使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-Uri-learn/">android中Uri的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/20/android-mediaplayer-usage/">android MediaPlayer基本使用方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/30/net-get-post/">GET请求和POST请求的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/28/android-sec-commonly/">android一些安全事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-Intent/">android中Intent使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-BroadcastReceiver/">android中BroadcastReceiver应用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-activity-task/">android中Activity的task</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/25/android-activity-launchMode/">android中Activity的四种launchMode</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/18/android-permission/">android声明和使用权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/14/android-view-IllegalArgumentException/">View not attached to window manager</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/12/httpclient-learn-conclusion/">httpclient使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/10/android-MediaRecorder-stop-error/">android录音时stop出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/08/android-xutils-http-learn/">xutils中HttpUtils模块分析①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/10/20/android-error/">android异常/错误集</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/30/java-Generics/">java中泛型Generics的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/26/java-ThreadPoolExecutor/">android里面ThreadPoolExecutor的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/24/java-volatile-static/">java中volatile和static的区别 </a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/21/java-shutdown/">线程池shutdown()方法和shutdownNow()区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-volatile/">java 里面volatile的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-AtomicInteger/">java 里面AtomicInteger的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/07/java-string-format/">java中string.format方法使用介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/06/java-Serializable/">java 里面Serializable的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/05/eclipse-git-merge/">eclipse中git解决冲突</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/04/java-enum-final/">java中枚举和常量定义的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/03/java-enum/">java中enum的用法详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/05/17/git-api/">git常用命令及思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/java-trans/">java是传值还是传引用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/session-cookie/">详解COOKIE与SESSION的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/02/16/string-stringbuffer/">String和StringBuffer的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/08/24/java-reflection/">Java反射Demo</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/ubuntu_order/">ubuntu命令学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/sublime-text-2/">Sublime Text 2使用简介</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="标签">
+<meta property="og:url" content="http://dalufan.com/tags/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:updated_time" content="2015-07-30T06:36:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="标签">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>标签 | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: false,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="page-undefined" class="article article-type-page" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/tags/index.html" class="article-date">
+      <time datetime="2015-07-30T06:30:21.000Z" itemprop="datePublished">2015-07-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      标签
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <style>
+    .article-meta { display: none; }
+    #container .article .article-title { padding-right: 0; }
+    .article-header {
+        padding: 0;
+        padding-top: 26px;
+        border-left: none;
+        text-align: center;
+    }
+    .article-header:hover { border-left: none; }
+    .article-title { font-size: 1.6em }
+    .article-entry hr { margin: 0;}
+    .article-meta,
+    #container .article-info-post.article-info { display: none;}
+    #container .article .article-title { padding: 0; }
+</style>
+
+
+    <!-- Tag Cloud Page -->
+    <hr>
+<br>
+<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">92</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/hack/">hack</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/hybrid/">hybrid</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ios/">ios</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">19</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/mysql/">mysql</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/spring/">spring</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/xcode/">xcode</a><span class="category-list-count">1</span></li></ul>
+
+<p class="count"></p>
+
+<div class="tags">
+    <a href="/tags/Activity/" style="font-size: 32.29px; color: #121212">Activity</a> <a href="/tags/AlarmManager/" style="font-size: 16px; color: #808080">AlarmManager</a> <a href="/tags/AtomicInteger/" style="font-size: 16px; color: #808080">AtomicInteger</a> <a href="/tags/Bitmap/" style="font-size: 16px; color: #808080">Bitmap</a> <a href="/tags/BroadcastReceiver/" style="font-size: 16px; color: #808080">BroadcastReceiver</a> <a href="/tags/ContentObserver/" style="font-size: 16px; color: #808080">ContentObserver</a> <a href="/tags/ContentProvider/" style="font-size: 16px; color: #808080">ContentProvider</a> <a href="/tags/Context/" style="font-size: 16px; color: #808080">Context</a> <a href="/tags/DownloadManager/" style="font-size: 18.71px; color: #6e6e6e">DownloadManager</a> <a href="/tags/Drawable/" style="font-size: 16px; color: #808080">Drawable</a> <a href="/tags/Enum/" style="font-size: 18.71px; color: #6e6e6e">Enum</a> <a href="/tags/EventBus/" style="font-size: 16px; color: #808080">EventBus</a> <a href="/tags/Fragment/" style="font-size: 18.71px; color: #6e6e6e">Fragment</a> <a href="/tags/Generics/" style="font-size: 16px; color: #808080">Generics</a> <a href="/tags/Handler/" style="font-size: 16px; color: #808080">Handler</a> <a href="/tags/HttpClient/" style="font-size: 16px; color: #808080">HttpClient</a> <a href="/tags/ImageView/" style="font-size: 18.71px; color: #6e6e6e">ImageView</a> <a href="/tags/Intent/" style="font-size: 18.71px; color: #6e6e6e">Intent</a> <a href="/tags/ListView/" style="font-size: 18.71px; color: #6e6e6e">ListView</a> <a href="/tags/MediaPlayer/" style="font-size: 16px; color: #808080">MediaPlayer</a> <a href="/tags/MediaRecorder/" style="font-size: 16px; color: #808080">MediaRecorder</a> <a href="/tags/MotionEvent/" style="font-size: 16px; color: #808080">MotionEvent</a> <a href="/tags/RecycleView/" style="font-size: 16px; color: #808080">RecycleView</a> <a href="/tags/Retrofit/" style="font-size: 16px; color: #808080">Retrofit</a> <a href="/tags/Serializable/" style="font-size: 16px; color: #808080">Serializable</a> <a href="/tags/Service/" style="font-size: 21.43px; color: #5b5b5b">Service</a> <a href="/tags/Smali/" style="font-size: 16px; color: #808080">Smali</a> <a href="/tags/SparseArray/" style="font-size: 16px; color: #808080">SparseArray</a> <a href="/tags/String/" style="font-size: 18.71px; color: #6e6e6e">String</a> <a href="/tags/StringBuffer/" style="font-size: 16px; color: #808080">StringBuffer</a> <a href="/tags/Sublime/" style="font-size: 16px; color: #808080">Sublime</a> <a href="/tags/TextView/" style="font-size: 16px; color: #808080">TextView</a> <a href="/tags/ThreadPoolExecutor/" style="font-size: 18.71px; color: #6e6e6e">ThreadPoolExecutor</a> <a href="/tags/UIImageView/" style="font-size: 16px; color: #808080">UIImageView</a> <a href="/tags/Uri/" style="font-size: 16px; color: #808080">Uri</a> <a href="/tags/View/" style="font-size: 29.57px; color: #252525">View</a> <a href="/tags/ViewPager/" style="font-size: 18.71px; color: #6e6e6e">ViewPager</a> <a href="/tags/WebView/" style="font-size: 24.14px; color: #494949">WebView</a> <a href="/tags/Xutils/" style="font-size: 16px; color: #808080">Xutils</a> <a href="/tags/Zxing/" style="font-size: 16px; color: #808080">Zxing</a> <a href="/tags/android/" style="font-size: 16px; color: #808080">android</a> <a href="/tags/animator/" style="font-size: 16px; color: #808080">animator</a> <a href="/tags/app/" style="font-size: 16px; color: #808080">app</a> <a href="/tags/as/" style="font-size: 16px; color: #808080">as</a> <a href="/tags/autolayout/" style="font-size: 16px; color: #808080">autolayout</a> <a href="/tags/canvas/" style="font-size: 16px; color: #808080">canvas</a> <a href="/tags/cookie/" style="font-size: 16px; color: #808080">cookie</a> <a href="/tags/dex/" style="font-size: 16px; color: #808080">dex</a> <a href="/tags/diff/" style="font-size: 16px; color: #808080">diff</a> <a href="/tags/eclipse/" style="font-size: 18.71px; color: #6e6e6e">eclipse</a> <a href="/tags/email/" style="font-size: 16px; color: #808080">email</a> <a href="/tags/error/" style="font-size: 26.86px; color: #373737">error</a> <a href="/tags/example/" style="font-size: 16px; color: #808080">example</a> <a href="/tags/excel/" style="font-size: 16px; color: #808080">excel</a> <a href="/tags/final/" style="font-size: 16px; color: #808080">final</a> <a href="/tags/gc/" style="font-size: 18.71px; color: #6e6e6e">gc</a> <a href="/tags/issues/" style="font-size: 16px; color: #808080">issues</a> <a href="/tags/join/" style="font-size: 16px; color: #808080">join</a> <a href="/tags/knowledge/" style="font-size: 35px; color: #000">knowledge</a> <a href="/tags/mat/" style="font-size: 16px; color: #808080">mat</a> <a href="/tags/maven/" style="font-size: 16px; color: #808080">maven</a> <a href="/tags/net/" style="font-size: 16px; color: #808080">net</a> <a href="/tags/note/" style="font-size: 35px; color: #000">note</a> <a href="/tags/optimization/" style="font-size: 16px; color: #808080">optimization</a> <a href="/tags/permission/" style="font-size: 16px; color: #808080">permission</a> <a href="/tags/process/" style="font-size: 18.71px; color: #6e6e6e">process</a> <a href="/tags/ragment/" style="font-size: 16px; color: #808080">ragment</a> <a href="/tags/reconsitution/" style="font-size: 21.43px; color: #5b5b5b">reconsitution</a> <a href="/tags/reflect/" style="font-size: 16px; color: #808080">reflect</a> <a href="/tags/regex/" style="font-size: 16px; color: #808080">regex</a> <a href="/tags/rn/" style="font-size: 18.71px; color: #6e6e6e">rn</a> <a href="/tags/scrollView/" style="font-size: 16px; color: #808080">scrollView</a> <a href="/tags/sec/" style="font-size: 21.43px; color: #5b5b5b">sec</a> <a href="/tags/session/" style="font-size: 16px; color: #808080">session</a> <a href="/tags/setCompoundDrawables/" style="font-size: 16px; color: #808080">setCompoundDrawables</a> <a href="/tags/shutdown/" style="font-size: 16px; color: #808080">shutdown</a> <a href="/tags/so/" style="font-size: 16px; color: #808080">so</a> <a href="/tags/sqlite/" style="font-size: 18.71px; color: #6e6e6e">sqlite</a> <a href="/tags/startActivityForResult/" style="font-size: 16px; color: #808080">startActivityForResult</a> <a href="/tags/static/" style="font-size: 16px; color: #808080">static</a> <a href="/tags/swift/" style="font-size: 16px; color: #808080">swift</a> <a href="/tags/thread/" style="font-size: 16px; color: #808080">thread</a> <a href="/tags/uml/" style="font-size: 16px; color: #808080">uml</a> <a href="/tags/usagestats/" style="font-size: 16px; color: #808080">usagestats</a> <a href="/tags/volatile/" style="font-size: 18.71px; color: #6e6e6e">volatile</a> <a href="/tags/workflow/" style="font-size: 21.43px; color: #5b5b5b">workflow</a> <a href="/tags/xcode/" style="font-size: 16px; color: #808080">xcode</a>
+</div>
+<style>
+    .category-list li{
+        display: inline-block;
+        margin: 0 1em .5em 0;
+        padding: 4px;
+        border: 1px solid lightgray;
+        font-size: 1.2rem;
+    }
+    .category-list a { color: gray; }
+    .category-list-item:hover a {
+        color: gray;
+        text-decoration: none;
+    }
+    .category-list-count {
+        margin-left: 2px;
+        font-size: .9rem;
+    }
+    .article-entry ul li:before{ display: none; }
+    .article-inner { text-align: center; }
+    .tags {
+        max-width: 42em;
+        margin: 2em auto;
+        margin-top: 0em;
+    }
+    .tags a {
+        margin-right: 1em;
+        line-height: 65px;
+        border-bottom: 1px solid gray;
+        white-space: nowrap;
+        transition: border-bottom .5s;
+    }
+    .tags a:hover {
+        border-bottom: 3px dotted gray;
+        text-decoration: none;
+    }
+    #count > span {
+        margin: auto .2em;
+        font-weight: bold;
+    }
+</style>
+
+<!-- Count tags and categories -->
+<p id="count">
+        已有<span><script>document.write($(".category-list-item").length)</script></span>个分类，
+        共计<span><script>document.write($(".tags > a").length)</script></span>个标签
+</p>
+<script>
+    $('#count').appendTo('.count');
+</script>
+
+          
+        
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+  
+</article>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"标签　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

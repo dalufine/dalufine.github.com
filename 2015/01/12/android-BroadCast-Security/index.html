@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta name="description" content="背景Broadcast Recevier 广播接收器是一个专注于接收广播通知信息，并做出对应处理的组件。很多广播是源自于系统代码的──比如，通知时区改变、电池电量低、拍摄了一张照片或者用户改变了语言选项。应用程序也可以进行广播──比如说，通知其它应用程序一些数据下载完成并处于可用状态。 应用程序可以拥有任意数量的广播接收器以对所有它感兴趣的通知信息予以响应。所有的接收器均继承自BroadcastR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android广播中的安全问题">
+<meta property="og:url" content="http://dalufan.com/2015/01/12/android-BroadCast-Security/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:description" content="背景Broadcast Recevier 广播接收器是一个专注于接收广播通知信息，并做出对应处理的组件。很多广播是源自于系统代码的──比如，通知时区改变、电池电量低、拍摄了一张照片或者用户改变了语言选项。应用程序也可以进行广播──比如说，通知其它应用程序一些数据下载完成并处于可用状态。 应用程序可以拥有任意数量的广播接收器以对所有它感兴趣的通知信息予以响应。所有的接收器均继承自BroadcastR">
+<meta property="og:image" content="http://dalufan.com/article_images/static.jpg">
+<meta property="og:image" content="http://dalufan.com/article_images/charact.png">
+<meta property="og:image" content="http://dalufan.com/article_images/type.jpg">
+<meta property="og:image" content="http://dalufan.com/article_images/exported.png">
+<meta property="og:image" content="http://dalufan.com/article_images/break.png">
+<meta property="og:updated_time" content="2015-01-12T10:44:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="android广播中的安全问题">
+<meta name="twitter:description" content="背景Broadcast Recevier 广播接收器是一个专注于接收广播通知信息，并做出对应处理的组件。很多广播是源自于系统代码的──比如，通知时区改变、电池电量低、拍摄了一张照片或者用户改变了语言选项。应用程序也可以进行广播──比如说，通知其它应用程序一些数据下载完成并处于可用状态。 应用程序可以拥有任意数量的广播接收器以对所有它感兴趣的通知信息予以响应。所有的接收器均继承自BroadcastR">
+<meta name="twitter:image" content="http://dalufan.com/article_images/static.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>android广播中的安全问题 | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-android-BroadCast-Security" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/01/12/android-BroadCast-Security/" class="article-date">
+      <time datetime="2015-01-12T10:44:12.000Z" itemprop="datePublished">2015-01-12</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      android广播中的安全问题
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sec/">sec</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>Broadcast Recevier 广播接收器是一个专注于接收广播通知信息，并做出对应处理的组件。很多广播是源自于系统代码的──比如，通知时区改变、电池电量低、拍摄了一张照片或者用户改变了语言选项。应用程序也可以进行广播──比如说，通知其它应用程序一些数据下载完成并处于可用状态。 应用程序可以拥有任意数量的广播接收器以对所有它感兴趣的通知信息予以响应。所有的接收器均继承自BroadcastReceiver基类。 广播接收器没有用户界面。然而，它们可以启动一个activity来响应它们收到的信息，或者用NotificationManager来通知用户。通知可以用很多种方式来吸引用户的注意力──闪动背灯、震动、播放声音等等。一般来说是在状态栏上放一个持久的图标，用户可以打开它并获取消息。</p>
+<a id="more"></a> 
+<h3 id="要点"><a href="#要点" class="headerlink" title="要点"></a>要点</h3><h4 id="注册形式：动态or静态"><a href="#注册形式：动态or静态" class="headerlink" title="注册形式：动态or静态"></a>注册形式：动态or静态</h4><p>元素的name属性指定了实现了这个activity的 Activity的子类。icon和label属性指向了包含展示给用户的此activity的图标和标签的资源文件。其它组件也以类似的方法声明── 元素用于声明服务， 元素用于声明广播接收器，而 元素用于声明内容提供器。 manifest文件中未进行声明的activity、服务以及内容提供器将不为系统所见，从而也就不会被运行。然而，广播接收器既可以在manifest文件中声明，也可以在代码中进行动态的创建，并以调用Context.registerReceiver()的方式注册至系统。</p>
+<p>静态与动态注册广播接收器区别：</p>
+<p><img src="/article_images/static.jpg" alt="alt"></p>
+<h4 id="回调方法"><a href="#回调方法" class="headerlink" title="回调方法"></a>回调方法</h4><p>广播接收器只有一个回调方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context curContext, Intent broadcastMsg)</span></span></div></pre></td></tr></table></figure>
+<p>当广播消息抵达接收器时，android调用它的onReceive() 方法并将包含消息的Intent对象传递给它。广播接收器仅在它执行这个方法时处于活跃状态。当onReceive()返回后，它即为失活状态。 拥有一个活跃状态的广播接收器的进程被保护起来而不会被杀死。但仅拥有失活状态组件的进程则会在其它进程需要它所占有的内存的时候随时被杀掉。 这种方式引出了一个问题：如果响应一个广播信息需要很长的一段时间，我们一般会将其纳入一个衍生的线程中去完成，而不是在主线程内完成它，从而保证用户交互过程的流畅。<code>如果onReceive()衍生了一个线程并且返回，则包涵新线程在内的整个进程都被会判为失活状态</code>（除非进程内的其它应用程序组件仍处于活跃状态），于是它就有可能被杀掉。这个问题的解决方法是<code>令onReceive()启动一个新服务，并用其完成任务</code>，于是系统就会知道进程中仍然在处理着工作。</p>
+<h4 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h4><p>设置接收app</p>
+<pre><code>Intent  setPackage(String packageName)
+(Usually optional) Set an explicit application package name that limits the components this Intent will resolve to.
+</code></pre><p>设置接收权限</p>
+<pre><code>abstract void  sendBroadcast(Intent intent, String receiverPermission)
+Broadcast the given intent to all interested BroadcastReceivers, allowing an optional required permission to be enforced.
+</code></pre><p>protectionLevel</p>
+<ul>
+<li>normal:默认值。低风险权限，只要申请了就可以使用，安装时不需要用户确认。</li>
+<li>dangerous：像WRITE_SETTING和SEND_SMS等权限是有风险的，因为这些权限能够用来重新配置设备或者导致话费。使用此protectionLevel来标识用户可能关注的一些权限。android将会在安装程序时，警示用户关于这些权限的需求，具体的行为可能依据android版本或者所安装的移动设备而有所变化。</li>
+<li>signature：这些权限仅授予那些和本程序应用了相同密钥来签名的程序。</li>
+<li>signatureOrSystem:与signature类似，除了一点，系统中的程序也需要有资格来访问。这样允许定制android系统应用也能获得权限，这种保护等级有助于集成系统编译过程。    </li>
+</ul>
+<h4 id="广播类型"><a href="#广播类型" class="headerlink" title="广播类型"></a>广播类型</h4><ol>
+<li>系统广播：像开机启动、接收到短信、电池电量低这类事件发生的时候系统都会发出特定的广播去通知应用，应用接收到广播后会以某种形式再转告用户。</li>
+<li>自定义广播：不同于系统广播事件，应用可以为自己的广播接收器自定义出一条广播事件。</li>
+</ol>
+<p><strong>Ordered Broadcast</strong></p>
+<p>OrderedBroadcast-有序广播，Broadcast-普通广播，他们的区别是有序广播发出后能够适配的广播接收者按照一定的权限顺序接收这个广播，并且前面的接收者可以对广播的内容进行修改，修改的结果被后面接收者接收，优先级高的接收者还可以结束这个广播，那么后面优先级低的接收者就接收不到这个广播了。而普通广播发出后，能够是适配的接收者没有一定顺序接收广播，也不能终止广播。</p>
+<p><strong>sticky broadcast</strong></p>
+<p>有这么一种broadcast，在发送并经过AMS(ActivityManagerService)分发给对应的receiver后，这个broadcast并不会被丢弃，而是保存在AMS中，当有新的需要动态注册的receiver请求AMS注册时，如果这个receiver能够接收这个broadcast，那么AMS会将在receiver注册成功之后，马上向receiver发送这个broadcast。这种broadcast我们称之为stickybroadcast。</p>
+<p>sendStickyBroadcast()字面意思是发送粘性的广播，使用这个api需要权限android.Manifest.permission.BROADCAST_STICKY,粘性广播的特点是Intent会一直保留到广播事件结束，而这种广播也没有所谓的10秒限制，<code>10秒限制</code>是指普通的广播如果onReceive方法执行时间太长，超过10秒的时候系统会将这个广播置为可以干掉的candidate，一旦系统资源不够的时候，就会干掉这个广播而让它不执行。</p>
+<p><img src="/article_images/charact.png" alt="alt"></p>
+<h4 id="变动"><a href="#变动" class="headerlink" title="变动"></a>变动</h4><p>android3.1以及之后版本广播接收器不能在启动应用前注册。可以通过设置intent的flag为<code>Intent.FLAG_INCLUDE_STOPPED_PACKAGES</code>将广播发送给未启动应用的广播接收器。</p>
+<h3 id="关键方法"><a href="#关键方法" class="headerlink" title="关键方法"></a>关键方法</h3><pre><code>sendBroadcast(intent)
+sendOrderedBroadcast(intent, null, mResultReceiver, null, 0, null, null)
+onReceive(Context context, Intent intent)
+getResultData()
+abortBroadcast()
+registerReceiver()
+unregisterReceiver()
+LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+sendStickyBroadcast(intent)
+</code></pre><h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><p><img src="/article_images/type.jpg" alt="alt"></p>
+<ol>
+<li>私有广播接收器：只接收app自身发出的广播</li>
+<li>公共广播接收器：能接收所有app发出的广播</li>
+<li>内部广播接收器：只接收内部app发出的广播</li>
+</ol>
+<h4 id="安全建议"><a href="#安全建议" class="headerlink" title="安全建议"></a>安全建议</h4><p>intent-filter节点与exported属性设置组合建议</p>
+<p><img src="/article_images/exported.png" alt="alt"></p>
+<p>1.私有广播接收器设置<code>exported=&#39;false&#39;</code>，并且不配置intent-filter。(私有广播接收器依然能接收到同UID的广播)</p>
+<pre><code>&lt;receiver android:name=&quot;.PrivateReceiver&quot; android:exported=&quot;false&quot; /&gt;
+</code></pre><p>2.对接收来的广播进行验证</p>
+<p>3.内部app之间的广播使用<code>protectionLevel=&#39;signature&#39;</code>验证其是否真是内部app</p>
+<p>4.返回结果时需注意接收app是否会泄露信息</p>
+<p>5.发送的广播包含敏感信息时需指定广播接收器，使用显示意图或者</p>
+<pre><code>setPackage(String packageName)
+</code></pre><p>6.sticky broadcast粘性广播中不应包含敏感信息</p>
+<p>7.Ordered Broadcast建议设置接收权限receiverPermission，避免恶意应用设置高优先级抢收此广播后并执行abortBroadcast()方法。</p>
+<h3 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h3><p>1、查找动态广播接收器：反编译后检索registerReceiver(),</p>
+<pre><code>dz&gt; run app.broadcast.info -a android -i
+</code></pre><p>2、查找静态广播接收器：反编译后查看配置文件查找广播接收器组件，注意exported属性</p>
+<p>3、查找发送广播内的信息检索sendBroadcast与sendOrderedBroadcast，注意setPackage方法于receiverPermission变量。</p>
+<p>发送测试广播</p>
+<pre><code>adb shell：
+am broadcast -a MyBroadcast -n com.isi.vul_broadcastreceiver/.MyBroadCastReceiver
+am broadcast -a MyBroadcast -n com.isi.vul_broadcastreceiver/.MyBroadCastReceiver –es number 5556.
+
+drozer：
+dz&gt; run app.broadcast.send --component com.package.name --action android.intent.action.XXX
+
+code：
+Intent i = new Intent();
+ComponentName componetName = new ComponentName(packagename,  componet);         
+i.setComponent(componetName);       
+sendBroadcast(i);
+</code></pre><p>接收指定广播</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Receiver</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String ACCOUNT_NAME = <span class="string">"account_name"</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String ACCOUNT_PWD = <span class="string">"account_password"</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String ACCOUNT_TYPE = <span class="string">"account_type"</span>;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doLog</span><span class="params">(Context paramContext, Intent paramIntent)</span></span></div><div class="line">    &#123;</div><div class="line">        String name;</div><div class="line">        String password;</div><div class="line">        String type;</div><div class="line">        do</div><div class="line">        &#123;</div><div class="line">            name = paramIntent.getExtras().getString(ACCOUNT_NAME);</div><div class="line">            password = paramIntent.getExtras().getString(ACCOUNT_PWD);</div><div class="line">            type = paramIntent.getExtras().getString(ACCOUNT_TYPE);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">while</span> ((TextUtils.isEmpty(name)) || (TextUtils.isEmpty(password)) || (TextUtils.isEmpty(type)) || ((!type.equals(<span class="string">"email"</span>)) &amp;&amp; (!type.equals(<span class="string">"cellphone"</span>))));</div><div class="line">        Log.i(<span class="string">"name"</span>, name);</div><div class="line">        Log.i(<span class="string">"password"</span>, password);</div><div class="line">        Log.i(<span class="string">"type"</span>, type);</div><div class="line">     &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context paramContext, Intent paramIntent)</span></span></div><div class="line">    &#123;</div><div class="line">      <span class="keyword">if</span> (TextUtils.equals(paramIntent.getAction(), <span class="string">"account"</span>))</div><div class="line">      doLog(paramContext, paramIntent);</div><div class="line">     &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h3><h4 id="案例1：伪造消息代码执行"><a href="#案例1：伪造消息代码执行" class="headerlink" title="案例1：伪造消息代码执行"></a>案例1：伪造消息代码执行</h4><p><a href="http://www.wooyun.org/bugs/wooyun-2013-039801" target="_blank" rel="external">WooYun: 百度云盘手机版钓鱼、信息泄露和代码执行高危漏洞三合一</a></p>
+<h4 id="案例2：拒绝服务"><a href="#案例2：拒绝服务" class="headerlink" title="案例2：拒绝服务"></a>案例2：拒绝服务</h4><p>尝试向广播接收器发送不完整的intent比如空action或者空extra</p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2010-0511" target="_blank" rel="external">WooYun: 乐phone手机系统重启漏洞</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2013-034181" target="_blank" rel="external">手机百度4.5.1android客户端DOS攻击</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2013-042755" target="_blank" rel="external">QQ手机管家拒绝服务漏洞</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2014-053878" target="_blank" rel="external">百度某手机应用拒绝服务漏洞</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2014-047716" target="_blank" rel="external">搜狗输入法安卓客户端本地拒绝服务漏洞</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2013-039968" target="_blank" rel="external">百度云盘客户端拒绝服务</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2013-019422" target="_blank" rel="external">su提权广播劫持导致拒绝服务攻击</a></p>
+<h4 id="案例3：敏感信息泄漏"><a href="#案例3：敏感信息泄漏" class="headerlink" title="案例3：敏感信息泄漏"></a>案例3：敏感信息泄漏</h4><p>某应用利用广播传输用户账号密码</p>
+<p><img src="/article_images/break.png" alt="alt"></p>
+<p>隐式意图发送敏感信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ServerService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</div><div class="line">  <span class="comment">// ...</span></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">d</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">    Intent v1 = <span class="keyword">new</span> Intent();</div><div class="line">    v1.setAction(<span class="string">"com.sample.action.server_running"</span>);</div><div class="line">    v1.putExtra(<span class="string">"local_ip"</span>, v0.h);</div><div class="line">    v1.putExtra(<span class="string">"port"</span>, v0.i);</div><div class="line">    v1.putExtra(<span class="string">"code"</span>, v0.g);</div><div class="line">    v1.putExtra(<span class="string">"connected"</span>, v0.s);</div><div class="line">    v1.putExtra(<span class="string">"pwd_predefined"</span>, v0.r);</div><div class="line">    <span class="keyword">if</span> (!TextUtils.isEmpty(v0.t)) &#123;</div><div class="line">      v1.putExtra(<span class="string">"connected_usr"</span>, v0.t);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">this</span>.sendBroadcast(v1);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接收POC</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BcReceiv</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span> </span>&#123;</div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span></span>&#123;</div><div class="line"> </div><div class="line">    String s = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">if</span> (intent.getAction().equals(<span class="string">"com.sample.action.server_running"</span>))&#123;</div><div class="line">      String pwd = intent.getStringExtra(<span class="string">"connected"</span>);</div><div class="line">      s = <span class="string">"Airdroid  =&gt; ["</span> + pwd + <span class="string">"]/"</span> + intent.getExtras();</div><div class="line">    &#125;</div><div class="line">    Toast.makeText(context, String.format(<span class="string">"%s Received"</span>, s),</div><div class="line">                   Toast.LENGTH_SHORT).show();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>修复后代码，使用 <code>LocalBroadcastManager.sendBroadcast()</code> 发出的广播只能被app自身广播接收器接收。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Intent intent = <span class="keyword">new</span> Intent(<span class="string">"my-sensitive-event"</span>);</div><div class="line">intent.putExtra(<span class="string">"event"</span>, <span class="string">"this is a test event"</span>);</div><div class="line">LocalBroadcastManager.getInstance(<span class="keyword">this</span>).sendBroadcast(intent);</div></pre></td></tr></table></figure>
+<h4 id="案例4：权限绕过"><a href="#案例4：权限绕过" class="headerlink" title="案例4：权限绕过"></a>案例4：权限绕过</h4><p><a href="http://www.wooyun.org/bugs/wooyun-2012-09175" target="_blank" rel="external">小米MIUI漏洞可能导致硬件资源消耗</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2013-019579" target="_blank" rel="external">无须权限随意开启和关闭手机wifi功能</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2014-068478" target="_blank" rel="external">华为荣耀3X android4.2提权打电话漏洞</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2014-084520" target="_blank" rel="external">酷派最安全手机s6拨打电话权限绕过</a></p>
+<p><a href="http://www.wooyun.org/bugs/wooyun-2014-084516" target="_blank" rel="external">酷派最安全手机s6程序锁绕过</a></p>
+<p><a href="http://zone.wooyun.org/content/16841" target="_blank" rel="external">CVE-2014-8610 android &lt; 5.0 短信重发漏洞</a></p>
+<hr>
+<p>参考链接：<a href="http://drops.wooyun.org/tips/4393" target="_blank" rel="external">方案</a>,<a href="http://www.jssec.org/dl/android_securecoding_en.pdf" target="_blank" rel="external">文档</a>,<a href="https://www.securecoding.cert.org/confluence/display/java/DRD03-J.+Do+not+broadcast+sensitive+information+using+an+implicit+intent" target="_blank" rel="external">其他</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">大路</a></p>
+        <p><span>发布时间:</span>2015-01-12, 18:44:12</p>
+        <p><span>最后更新:</span>2015-01-12, 18:44:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2015/01/12/android-BroadCast-Security/" title="android广播中的安全问题">http://dalufan.com/2015/01/12/android-BroadCast-Security/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://dalufan.com/2015/01/12/android-BroadCast-Security/　　作者: 大路" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2015/01/12/android-ContentObserver-learn/">
+                    android中ContentObserver类详解
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2014/12/30/android-app-usagestats/">
+                    android 获取各应用的运行时间
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#要点"><span class="toc-number">2.</span> <span class="toc-text">要点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#注册形式：动态or静态"><span class="toc-number">2.1.</span> <span class="toc-text">注册形式：动态or静态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#回调方法"><span class="toc-number">2.2.</span> <span class="toc-text">回调方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#权限"><span class="toc-number">2.3.</span> <span class="toc-text">权限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#广播类型"><span class="toc-number">2.4.</span> <span class="toc-text">广播类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#变动"><span class="toc-number">2.5.</span> <span class="toc-text">变动</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关键方法"><span class="toc-number">3.</span> <span class="toc-text">关键方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分类"><span class="toc-number">4.</span> <span class="toc-text">分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#安全建议"><span class="toc-number">4.1.</span> <span class="toc-text">安全建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试方法"><span class="toc-number">5.</span> <span class="toc-text">测试方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#案例"><span class="toc-number">6.</span> <span class="toc-text">案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#案例1：伪造消息代码执行"><span class="toc-number">6.1.</span> <span class="toc-text">案例1：伪造消息代码执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#案例2：拒绝服务"><span class="toc-number">6.2.</span> <span class="toc-text">案例2：拒绝服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#案例3：敏感信息泄漏"><span class="toc-number">6.3.</span> <span class="toc-text">案例3：敏感信息泄漏</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#案例4：权限绕过"><span class="toc-number">6.4.</span> <span class="toc-text">案例4：权限绕过</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"android广播中的安全问题　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2015/01/12/android-BroadCast-Security/" data-title="android广播中的安全问题" data-url="http://dalufan.com/2015/01/12/android-BroadCast-Security/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"dalufan"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2015/01/12/android-ContentObserver-learn/" title="上一篇: android中ContentObserver类详解">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2014/12/30/android-app-usagestats/" title="下一篇: android 获取各应用的运行时间">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/07/android-startActivityForResult-FragmentActivity-Fragment/">彻底搞懂startActivityForResult在FragmentActivity和Fragment中的异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/03/android-dynamicicon-example/">android动态更新APP图标和label</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/android-ViewPager-Fragment-LazyLoad/">ViewPager+Fragment LazyLoad 最优解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/08/java-singleton-good-write/">Java更好的单例写法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/02/android-recycleview-useage-issues/">RecycleView的使用及坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/android-click-icon-restart/">防止App在后台运行，点击应用桌面图标重新启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/android-some-little-knowledge/">Android的一些开发细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/30/mysql-join-usage/">图解SQL的Join</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/swift-string-create-class/">Swift:通过字符串创建类对象  </a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/android-fragment-backpress/">Fragment监听返回键事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/08/ios-constraint-autolayout-autoresizing/">autolayout和autoresizing的使用注意事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/xcode-eclipse-key-xcodeKit/">xcode中快速删除拷贝一行，like eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/ios-imageNamed-imageWithContentsOfFile-diff/">imageNamed和imageWithContentsOfFile的使用和区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/07/android-rotate-imageview/">Android 自定义可旋转的ImageView</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/mysql-case-when-and-left-join-demo/">mysql中UNIQUE、判断、组合查找的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/27/android-fragment-state-saving-best-practices/">fragment状态保存最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/03/mysql-base-usage-03/">《mysql 必知必会》读书笔记三（21-30）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/30/mysql-base-usage-02/">《mysql 必知必会》读书笔记二（13-20）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/28/mysql-base-usage-01/">《mysql 必知必会》读书笔记一（1-12）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/21/android-listview-usage/">android listview的一些技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/11/android-react-native-learn-day02/">react-native学习笔记二</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/26/android-react-native-learn-day01/">react-native学习笔记一</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/17/android-widget-imageview-1/">自定义ImageView系列第一版</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/26/web-maven-springmvc-start-learn/">使用maven配置springmvc的过程中遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/23/java-uml-learn/">UML中的五种关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/17/android-art-of-android-deveopment-note-2/">《Android 开发艺术探索》读书笔记--第二章 IPC机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/13/effective-java-learn-note-10-01/">《Effective Java》读书笔记--第十章 并发（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/20/android-art-of-android-deveopment-note-12/">《Android 开发艺术探索》读书笔记--第十二章 Bitmap 第十五章 性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/11/thinking-of-getting-the-current-activity-in-android/">如何获取当前Activity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/08/workflow-feature-branch-Pull-Request/">WorkFlow--功能分支工作流(Pull Requests)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/02/workflow-Pull-Request/">Pull Requests的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/20/android-art-of-android-deveopment-note-10/">《Android 开发艺术探索》读书笔记--第十章Android的消息机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android-art-of-android-deveopment-note-4/">《Android 开发艺术探索》读书笔记--第四章 View的工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/workflow-centralized-git-rebase/">WorkFlow--集中式工作流(git rebase)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/03/android-activity-onActivityResult/">Activity中onActivityResult存在的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/22/android-webview-upload-file/">Webview中上传文件支持全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/18/android-art-of-android-deveopment-note-3/">《Android 开发艺术探索》读书笔记--第三章View事件体系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/02/java-JSONObject-Stub/">java工程中调用Android库出现“Stub!”错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-optimization-thread-ThreadPoolExecutor/">android性能优化--使用线程池处理异步任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/26/android-View-LinearGradient/">android中使用LinearGradient实现文字闪烁的效果</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/24/android-Activity-launch-learn/">Activity启动过程全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/23/android-DownloadManager-usage/">android中使用DownloadManager来下载</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/22/android-context-learn/">Android Context完全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-achievement/">Android项目重构的整理-实现篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-view/">Android项目重构的整理-界面篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-architecture/">Android项目重构的整理-架构篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-webview-js-safe-message/">Webview与Js之间的另一种交互</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-error-UncaughtExceptionHandler/">android中处理崩溃的一般方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/18/android-mat-usage/">MAT的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/17/android-gc-leak/">android 内存泄露以及GC的相关知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/12/android-onSaveInstanceState-learn/">Activity和Fragement中onSaveInstanceState()的使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/07/app-hearsay/">道听途说</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can't create handler inside thread that has not</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-view-issues/">android中view相关的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/18/android-dex-inject-learn/">android dex注入实现详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/17/android-canvas-draw/">android中canvas的一些属性和用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/11/android-onTouchEvent/">Android触摸事件的响应机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/10/free-mail-mailinator/">mailinator 免费邮箱的使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-setOnPageChangeListener/">ViewPager的setOnPageChangeListener方法详解 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-Activity-ActionBarActivity-AppCompatActivity/">android中关于Activity/ActionBarActivity/AppCompatActivity的区分与理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/07/android-BitmapFactory-OutOfMemoryError/">android BitmapFactory的OutOfMemoryError的解决方案 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/03/git-android-as/">在android Studio 和 Eclipse 的 git 插件操作'代码提交'以及'代码冲突' </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/01/android-QR-changesize/">Zxing二维码扫描框大小修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/retrofit-usage/">Retrofit 中文文档</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/git-reset-soft-mixed-hard/">Difference between git reset soft, mixed and hard</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/27/android-so-usage/">关于android的.so文件你所需要知道的</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/26/android-EmailAutoCompleteTextView/">android 邮箱地址自动补全</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/24/android-setCompoundDrawables-setCompoundDrawablesWithIntrinsicBounds/">android setCompoundDrawables与setCompoundDrawablesWithIntrinsicBounds的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/20/android-Drawable-usage/">android Drawable 那些不为人知的高效用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/29/hello-world/">Hexo的使用方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/10/eclipse-cannot-open-git-upload-pack/">eclipse git push和pull出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/01/android-listview-ontouchevent/">android中对GridView， ListView等滚动控件的Touch事件onInterceptTouchEvent，onTouchEvent理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/29/android-javascript-exchange/">Android与Javascript交互概要</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/21/android-performance-optimization-SparseArray/">android应用性能优化中使用SparseArray替代HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/12/java-regex-useage/">Java正则表达式的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/05/android-motionevent/">MotionEvent中getX()、getRawX()等位置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/26/android-service-download-singlethread/">android中Service断点下载-单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/18/service-not-be-killed/">android保证Service不被杀掉的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/12/android-Intent-PendingIntent/">android中Intent和PendingIntent的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/10/android-AlarmManager/">android中AlarmManager的说明例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/android-handler-learn/">android中Handler的使用Tips</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/14/android-sqlite-err/">sqlite遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/14/android-sqlite-learn/">sqlite的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/11/android-thread-volatile-synchronized-final/">进程通信中volatile, synchronized, final的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/17/java-Process/">java.lang.Process 阻塞问题 & Runtime.exec()的陷阱</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/16/android-excel/">android操作Excel文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/14/android-Smail-learn/">Smail语法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-ContentObserver-learn/">android中ContentObserver类详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/30/android-app-usagestats/">android 获取各应用的运行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/29/ubuntu-android-driver/">ubuntu下解决不能识别android设备</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-View-learn-three/">android中简单自定义view③</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-DownloadManager/">android DownloadManager广播事件：下载完成、通知栏点击事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-one/">android中View的使用及解释①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-ContentProvider-learn/">android ContentProvider基本使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-Uri-learn/">android中Uri的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/20/android-mediaplayer-usage/">android MediaPlayer基本使用方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/30/net-get-post/">GET请求和POST请求的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/28/android-sec-commonly/">android一些安全事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-Intent/">android中Intent使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-BroadcastReceiver/">android中BroadcastReceiver应用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-activity-task/">android中Activity的task</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/25/android-activity-launchMode/">android中Activity的四种launchMode</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/18/android-permission/">android声明和使用权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/14/android-view-IllegalArgumentException/">View not attached to window manager</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/12/httpclient-learn-conclusion/">httpclient使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/10/android-MediaRecorder-stop-error/">android录音时stop出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/08/android-xutils-http-learn/">xutils中HttpUtils模块分析①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/10/20/android-error/">android异常/错误集</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/30/java-Generics/">java中泛型Generics的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/26/java-ThreadPoolExecutor/">android里面ThreadPoolExecutor的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/24/java-volatile-static/">java中volatile和static的区别 </a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/21/java-shutdown/">线程池shutdown()方法和shutdownNow()区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-volatile/">java 里面volatile的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-AtomicInteger/">java 里面AtomicInteger的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/07/java-string-format/">java中string.format方法使用介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/06/java-Serializable/">java 里面Serializable的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/05/eclipse-git-merge/">eclipse中git解决冲突</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/04/java-enum-final/">java中枚举和常量定义的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/03/java-enum/">java中enum的用法详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/05/17/git-api/">git常用命令及思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/java-trans/">java是传值还是传引用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/session-cookie/">详解COOKIE与SESSION的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/02/16/string-stringbuffer/">String和StringBuffer的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/08/24/java-reflection/">Java反射Demo</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/ubuntu_order/">ubuntu命令学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/sublime-text-2/">Sublime Text 2使用简介</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

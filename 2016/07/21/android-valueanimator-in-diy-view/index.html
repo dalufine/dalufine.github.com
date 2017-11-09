@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta name="description" content="属性动画的强大之处在于可以对任意对象的任意属性增加动画效果，并且可以自定义值的类型和变化过程（TypeEvaluator）和过渡速度（Interpolator）。结尾有借助属性动画实现的数字滚动效果源码。
+ValueAnimatorValueAnimator是属性动画的核心类，最常用的ObjectAnimator就是它的子类。ValueAnimator本身不作用于任何对象，也就是说直接使用它没有任">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ValueAnimator在自定义View中的使用">
+<meta property="og:url" content="http://dalufan.com/2016/07/21/android-valueanimator-in-diy-view/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:description" content="属性动画的强大之处在于可以对任意对象的任意属性增加动画效果，并且可以自定义值的类型和变化过程（TypeEvaluator）和过渡速度（Interpolator）。结尾有借助属性动画实现的数字滚动效果源码。
+ValueAnimatorValueAnimator是属性动画的核心类，最常用的ObjectAnimator就是它的子类。ValueAnimator本身不作用于任何对象，也就是说直接使用它没有任">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/72f96cbagw1f67f2w02m5g206b0b874m.gif">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/72f96cbagw1f67f5axothg206f0bdwex.gif">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/72f96cbagw1f67ffo1527g206f0bdt96.gif">
+<meta property="og:updated_time" content="2016-07-25T10:44:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ValueAnimator在自定义View中的使用">
+<meta name="twitter:description" content="属性动画的强大之处在于可以对任意对象的任意属性增加动画效果，并且可以自定义值的类型和变化过程（TypeEvaluator）和过渡速度（Interpolator）。结尾有借助属性动画实现的数字滚动效果源码。
+ValueAnimatorValueAnimator是属性动画的核心类，最常用的ObjectAnimator就是它的子类。ValueAnimator本身不作用于任何对象，也就是说直接使用它没有任">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/large/72f96cbagw1f67f2w02m5g206b0b874m.gif">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>ValueAnimator在自定义View中的使用 | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-android-valueanimator-in-diy-view" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/07/21/android-valueanimator-in-diy-view/" class="article-date">
+      <time datetime="2016-07-21T10:44:12.000Z" itemprop="datePublished">2016-07-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ValueAnimator在自定义View中的使用
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/animator/">animator</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>属性动画的强大之处在于可以对任意对象的任意属性增加动画效果，并且可以自定义值的类型和变化过程（<code>TypeEvaluator</code>）和过渡速度（<code>Interpolator</code>）。结尾有借助属性动画实现的数字滚动效果源码。</p>
+<h3 id="ValueAnimator"><a href="#ValueAnimator" class="headerlink" title="ValueAnimator"></a>ValueAnimator</h3><p><code>ValueAnimator</code>是属性动画的核心类，最常用的<code>ObjectAnimator</code>就是它的子类。<code>ValueAnimator</code>本身不作用于任何对象，也就是说直接使用它没有任何动画效果。它可以对一个值做动画，然后我们可以监听其动画过程，在动画过程中修改我们的对象的属性值，这样也就相当于我们的对象做了动画。</p>
+<a id="more"></a>
+<p>一个列子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">ValueAnimator animator = ValueAnimator.ofFloat(<span class="number">0f</span>, <span class="number">1.0f</span>);</div><div class="line">animator.setDuration(<span class="number">3000</span>);</div><div class="line">animator.setInterpolator(<span class="keyword">new</span> LinearInterpolator());</div><div class="line"><span class="comment">//如果我们不设置Interpolator，会调用默认的Interpolator，先加速增加后减速增加。</span></div><div class="line">animator.start();</div><div class="line"><span class="comment">//以上代码先使用ofFloat方法传递0，1参数初始化了一个ValueAnimator对象，接着设置动画播放的时间，设置变化速率为系统提供的线性变化，最后启动动画。</span></div><div class="line"></div><div class="line"><span class="comment">//可以添加监听器获取具体改变的值。</span></div><div class="line">animator.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</div><div class="line">        <span class="keyword">float</span> value = (Float)animation.getAnimatedValue();</div><div class="line">        Log.d(TAG, value);</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line">animator.start();</div></pre></td></tr></table></figure>
+<h4 id="用法："><a href="#用法：" class="headerlink" title="用法："></a>用法：</h4><p>当然，上面的代码只是对数字的变化的操作，并没有涉及到动画效果。接下来我们通过在动画开始前（start方法）设置监听器来让自定义View做出相应的动画。如果想要做出如下图所示的效果，使用ValueAnimator就特别简单。</p>
+<p>这是效果图：<br><img src="http://ww4.sinaimg.cn/large/72f96cbagw1f67f2w02m5g206b0b874m.gif" alt="横向移动"></p>
+<p>由于效果是一个小球从左边移动一段距离后，重复执行。变化的值只有小球圆心的X轴坐标。所以可以利用<code>ValueAnimator</code>产生从开始位置到结束位置的一系列中间值，设置小球移动的动画。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.onDraw(canvas);</div><div class="line">    canvas.drawCircle(XPoint, heightSpecSize / <span class="number">2</span>, <span class="number">30</span>, mPaint);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对外提供开始动画的start方法：创建<code>ValueAnimator</code>对象，以及各种属性，添加监听器把每次改变的值赋值给xPoint，并且通知view重绘，最后开始动画。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> ValueAnimator animator = ValueAnimator.ofFloat(<span class="number">60</span>, <span class="number">600</span>);</div><div class="line">    animator.setDuration(<span class="number">2000</span>);</div><div class="line">    animator.setRepeatCount(ValueAnimator.INFINITE);</div><div class="line">    animator.setRepeatMode(ValueAnimator.RESTART);</div><div class="line">    animator.setInterpolator(<span class="keyword">new</span> LinearInterpolator());</div><div class="line">    animator.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</div><div class="line">            XPoint = (Float)animation.getAnimatedValue();</div><div class="line">            invalidate();</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    animator.start();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>invalidate()</code>方法，请求重绘View树，即draw()过程，假如视图发生大小没有变化就不会调用layout()过程，并且只绘制那些“需要重绘”的视图，即谁(View的话，只绘制该View ；ViewGroup，则绘制整个ViewGroup)请求invalidate()方法，就绘制该视图。</p>
+<p><code>requestLayout()</code>方法，只是对View树重新布局layout过程包括measure()和layout()过程，不会调用draw()过程，不会重新绘制<br>任何视图包括该调用者本身。</p>
+<p><code>requestFocus()</code>方法，函数请求View树的draw()过程，但只绘制“需要重绘”的视图。</p>
+<p>以上代码首先创建一个从60变化到600的<code>ValueAnimator</code>对象，接着设置动画时间、重播方式、重播次数和速度变化情况，最后增加监听器，每次获取变化的值再赋值给xPoint，接着很重要的一点，调用<code>invalidate()</code>方法通知View重绘，即值每次改变都需要View重绘。这样就很方便的根据float值的改变，给view增加了动画的效果。</p>
+<h3 id="TypeEvaluator"><a href="#TypeEvaluator" class="headerlink" title="TypeEvaluator"></a>TypeEvaluator</h3><p>前面的例子，创建<code>ValueAnimator</code>的时候，都是使用的<code>ValueAnimator</code>.ofFloat(float, float)方法，这个方法传递的参数为可变参数。其实创建<code>ValueAnimator</code>也可以使用<code>ofInt</code>等方法，还有一个很重要的方法：<code>ValueAnimator</code>.ofObject(TypeEvaluator, Object…),此方法和其他方法不同之处在于第一个参数<code>TypeEvaluator</code>,此处需要使用系统已经实现好的或自定义子类，用于设定自定义类型。</p>
+<p>在使用<code>ofInt</code>或<code>ofFloat</code>方法时，其实是使用了FloatEvaluator、FloatArrayEvaluator、IntEvaluator、IntArrayEvaluator这些系统已经实现好了的<code>TypeEvaluator</code>。我们使用这些方法创建ValueAnimator时就不必自定义类来继承<code>TypeEvaluator</code>。</p>
+<p>假如现在需要这个圆形斜着移动，使用<code>ValueAnimator</code>该怎样实现？当然很很多简单的实现方法，比如Path路径的使用，这里为了演示自定义<code>TypeEvaluator</code>，使用自定义<code>TypeEvaluator</code>的方式来实现。</p>
+<p>这是效果图：<br><img src="http://ww2.sinaimg.cn/large/72f96cbagw1f67f5axothg206f0bdwex.gif" alt="斜着移动"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//自定义类PointEvaluator实现TypeEvaluator接口。</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">PointEvaluator</span> <span class="keyword">implements</span> <span class="title">TypeEvaluator</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">evaluate</span><span class="params">(<span class="keyword">float</span> fraction, Object startValue, Object endValue)</span> </span>&#123;</div><div class="line">        Point startPoint = (Point) startValue;</div><div class="line">        Point endPoint = (Point) endValue;</div><div class="line">        <span class="keyword">int</span> x = (<span class="keyword">int</span>) (startPoint.x + fraction * (endPoint.x - startPoint.x));</div><div class="line">        <span class="keyword">int</span> y = (<span class="keyword">int</span>) (startPoint.y + fraction * (endPoint.y - startPoint.y));</div><div class="line">            </div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Point(x, y);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里需要实现evaluate方法，根据动画完成的百分比返回对应的值。其中<code>fraction</code>参数和动画时间有关，代表动画执行的完成程度，比如动画总时间为3000毫秒，现在执行了1000毫秒，那么此刻传递进来的fraction参数值为三分之一。</p>
+<p>在onDraw方法中依然还是简单的绘制一个圆形，此圆的圆心坐标是成员变量mPoint的x,y值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.onDraw(canvas);</div><div class="line">    canvas.drawCircle(mPoint.x, mPoint.y, <span class="number">30</span>, mPaint);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//最后提供start方法开始动画。</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> ValueAnimator animator = ValueAnimator.ofObject(<span class="keyword">new</span> PointEvaluator(), <span class="keyword">new</span> Point(<span class="number">30</span>, <span class="number">30</span>), <span class="keyword">new</span> Point(<span class="number">600</span>, <span class="number">600</span>));</div><div class="line">    animator.setDuration(<span class="number">2000</span>);</div><div class="line">    animator.setRepeatCount(ValueAnimator.INFINITE);</div><div class="line">    animator.setRepeatMode(ValueAnimator.REVERSE);</div><div class="line">    animator.setInterpolator(<span class="keyword">new</span> LinearInterpolator());</div><div class="line">    animator.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</div><div class="line">            mPoint = (Point)animation.getAnimatedValue();</div><div class="line">            invalidate();</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    animator.start();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>和上边的代码类似，只是<code>ValueAnimotor</code>操作的值从float改变成了Point(可以自定义类型)，不再做过多的解释了。</p>
+<p>这个例子，我们可以知道<code>ValueAnimotor</code>操作的值的类型是任意的，可以由我们来自定义，只要自定义类实现<code>TypeEvaluator</code>，并且实现此接口的唯一一个方法<code>evaluate</code>即可。</p>
+<h3 id="TimeInterpolator"><a href="#TimeInterpolator" class="headerlink" title="TimeInterpolator"></a>TimeInterpolator</h3><p><code>TimeInterpolator</code>表示动画的速率，上边代码中我们就设置了动画速率，只不过使用的是API中已经实现好了的LinearInterpolator。</p>
+<p>查询API知道TimeInterpolator接口有很多已知的实现类，比如：</p>
+<ul>
+<li><strong>AccelerateDecelerateInterpolator</strong> 表示先加速后减速，</li>
+<li><strong>AccelerateInterpolator</strong> 表示一直加速，</li>
+<li><strong>DecelerateInterpolator</strong> 表示一直加速等。</li>
+<li><strong>BounceInterpolator</strong> 可以模拟物理规律，实现反弹的效果</li>
+</ul>
+<p>如果不设置setInterpolator,那么默认使用AccelerateDecelerateInterpolator。</p>
+<p>在自定义TimeInterpolator之前，我们先看看API中提供的实现的例子：<code>LinearInterpolator</code>,<code>AccelerateInterpolator</code>。</p>
+<p>TimeInterpolator接口，只有一个方法：getInterpolation(float input),此方法接收一个float类型的input值，此值的变化范围为0~1，并且根据动画运行的时间，均匀增加，和TypeEvaluator接口方法中的参数fraction很像，fraction也是根据动画运行的时间，均匀增加。</p>
+<blockquote>
+<p>注意:<code>getInterpolation</code> 函数的返回值传递给了fraction;<br>最好让<code>getInterpolation</code>方法返回的值在0~1之间，以便在使用fraction参数时意思明确</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//LinearInterpolator源码：</span></div><div class="line"><span class="meta">@HasNativeInterpolator</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinearInterpolator</span> <span class="keyword">extends</span> <span class="title">BaseInterpolator</span> </span></div><div class="line">                        <span class="keyword">implements</span> <span class="title">NativeInterpolatorFactory</span> &#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LinearInterpolator</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LinearInterpolator</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getInterpolation</span><span class="params">(<span class="keyword">float</span> input)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> input;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">/** <span class="doctag">@hide</span> */</span></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">createNativeInterpolator</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> NativeInterpolatorFactoryHelper.createLinearInterpolator();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//从源码中，可以看到getInterpolation的逻辑简单到不能再简单，直接返回input，因为input本身表示的就是均匀增加的。</span></div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//AccelerateInterpolator源码：</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getInterpolation</span><span class="params">(<span class="keyword">float</span> input)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (mFactor == <span class="number">1.0f</span>) &#123;</div><div class="line">        <span class="keyword">return</span> input * input;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">return</span> (<span class="keyword">float</span>)Math.pow(input, mDoubleFactor);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//构造函数接收一个mFactor表示加速的倍数，接收1.0f以上的数，mDoubleFactor = 2 * mFactor。</span></div><div class="line"><span class="comment">//在getInterpolation方法中，判断mFactor如果等于1.0f，直接返回input * input（默认，二次函数增长），否则返回input的mDoubleFactor次方（mDoubleFactor次函数增长）。</span></div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//实现一个以10给底数的负指数函数减速的例子</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LgDecelerateInterpolator</span> <span class="keyword">implements</span> <span class="title">TimeInterpolator</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">float</span> background;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LgDecelerateInterpolator</span><span class="params">()</span> </span>&#123;</div><div class="line">        background = <span class="number">10</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getInterpolation</span><span class="params">(<span class="keyword">float</span> input)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> (<span class="number">1</span> - (<span class="keyword">float</span>) Math.pow(background, -input));</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//成员变量background表示底数，在构造方法中初始化为10，因为是减速，所以用到了负指数，得到的值从1变化到0，所以再用1减去这个结果值，就得到了最终的结果。</span></div></pre></td></tr></table></figure>
+<h3 id="AnimatorSet"><a href="#AnimatorSet" class="headerlink" title="AnimatorSet"></a>AnimatorSet</h3><p><code>AnimatorSet</code>表示动画的集合，可以把几个动画一起播放，或按次序播放。提供paly、with、after等方法。</p>
+<p>接下来，把以上用到的全部结合起来，播放一个动画的效果：圆形从View的左上角移动到右下角，伴随着颜色的变化，移动速度和颜色变化的速率都由上面自定义的LgDecelerateInterpolator实现。</p>
+<p>这是效果图：<br><img src="http://ww4.sinaimg.cn/large/72f96cbagw1f67ffo1527g206f0bdt96.gif" alt="斜着指数减速移动伴随颜色指数渐变"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyView</span> <span class="keyword">extends</span> <span class="title">View</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Paint mPaint;</div><div class="line">    <span class="keyword">private</span> Point mPoint;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mColor;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyView</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, attrs);</div><div class="line">        initPaint();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyView</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context);</div><div class="line">        initPaint();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initPaint</span><span class="params">()</span> </span>&#123;</div><div class="line">        mPaint = <span class="keyword">new</span> Paint();</div><div class="line">        mPaint.setColor(<span class="number">0xFFF00000</span>);</div><div class="line">        mPaint.setAntiAlias(<span class="keyword">true</span>); <span class="comment">// 抗锯齿</span></div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onDraw(canvas);</div><div class="line">        canvas.drawCircle(mPoint.x, mPoint.y, <span class="number">60</span>, mPaint);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> ValueAnimator animator = ValueAnimator.ofObject(<span class="keyword">new</span> PointEvaluator(),</div><div class="line">                <span class="keyword">new</span> Point(<span class="number">60</span>, <span class="number">60</span>), <span class="keyword">new</span> Point(<span class="number">990</span>, <span class="number">1050</span>));</div><div class="line">        animator.setRepeatCount(ValueAnimator.INFINITE);</div><div class="line">        animator.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</div><div class="line">                mPoint = (Point) animation.getAnimatedValue();</div><div class="line">                invalidate();</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        <span class="keyword">final</span> ValueAnimator animator1 = ValueAnimator.ofArgb(<span class="number">0xFFF00000</span>,<span class="number">0xFFFFFF00</span>);</div><div class="line">        animator1.setRepeatCount(ValueAnimator.INFINITE);</div><div class="line">        animator1.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</div><div class="line">                mColor = (<span class="keyword">int</span>) animation.getAnimatedValue();</div><div class="line">                mPaint.setColor(mColor);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        AnimatorSet animationSet = <span class="keyword">new</span> AnimatorSet();</div><div class="line">        animationSet.setDuration(<span class="number">3000</span>);</div><div class="line">        animationSet.setInterpolator(<span class="keyword">new</span> LgDecelerateInterpolator());</div><div class="line">        animationSet.play(animator).with(animator1);</div><div class="line">        animationSet.start();</div><div class="line">    &#125;</div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">PointEvaluator</span> <span class="keyword">implements</span> <span class="title">TypeEvaluator</span> </span>&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> Object <span class="title">evaluate</span><span class="params">(<span class="keyword">float</span> fraction, Object startValue, Object endValue)</span> </span>&#123;</div><div class="line">            Point startPoint = (Point) startValue;</div><div class="line">            Point endPoint = (Point) endValue;</div><div class="line">            <span class="keyword">int</span> x = (<span class="keyword">int</span>) (startPoint.x + fraction * (endPoint.x - startPoint.x));</div><div class="line">            <span class="keyword">int</span> y = (<span class="keyword">int</span>) (startPoint.y + fraction * (endPoint.y - startPoint.y));</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Point(x, y);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="class"><span class="keyword">class</span> <span class="title">LgDecelerateInterpolator</span> <span class="keyword">implements</span> <span class="title">TimeInterpolator</span> </span>&#123;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">float</span> background;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">LgDecelerateInterpolator</span><span class="params">()</span> </span>&#123;</div><div class="line">            background = <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">getInterpolation</span><span class="params">(<span class="keyword">float</span> input)</span> </span>&#123;</div><div class="line">            <span class="keyword">return</span> (<span class="number">1</span> - (<span class="keyword">float</span>) Math.pow(background, -input));</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//start方法中创建了两个ValueAnimator,第一个使用.ofObject方法，通过传递自定义的PointEvaluator,第二个使用API已经实现的ofArgb使颜色值变化的动画属性，都添加监听器以实现对成员变量的修改，重绘View，最后创建AnimatorSet对两个动画进行叠加，在播放移动动画的同时播放颜色渐变的动画。</span></div></pre></td></tr></table></figure>
+<p>作者使用属性动画修改了<a href="https://github.com/a-voyager/ScrollNumber/" target="_blank" rel="external">ScrollNumber例子</a>，今天还看到了一个<a href="https://github.com/robinhood/ticker" target="_blank" rel="external">相似的例子</a></p>
+<p>修改后的ScrollNumber.java代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.wuhaojie.library;</div><div class="line"></div><div class="line"><span class="keyword">import</span> android.animation.ValueAnimator;</div><div class="line"><span class="keyword">import</span> android.content.Context;</div><div class="line"><span class="keyword">import</span> android.graphics.Canvas;</div><div class="line"><span class="keyword">import</span> android.graphics.Paint;</div><div class="line"><span class="keyword">import</span> android.graphics.Point;</div><div class="line"><span class="keyword">import</span> android.graphics.Rect;</div><div class="line"><span class="keyword">import</span> android.graphics.Typeface;</div><div class="line"><span class="keyword">import</span> android.text.TextUtils;</div><div class="line"><span class="keyword">import</span> android.util.AttributeSet;</div><div class="line"><span class="keyword">import</span> android.util.Log;</div><div class="line"><span class="keyword">import</span> android.util.TypedValue;</div><div class="line"><span class="keyword">import</span> android.view.View;</div><div class="line"><span class="keyword">import</span> android.view.animation.AccelerateDecelerateInterpolator;</div><div class="line"><span class="keyword">import</span> android.view.animation.Interpolator;</div><div class="line"><span class="keyword">import</span> android.view.animation.LinearInterpolator;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Created by wuhaojie on 2016/7/15 11:36.</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScrollNumber</span> <span class="keyword">extends</span> <span class="title">View</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mDeltaNum;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mCurNum = -<span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mNextNum;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mTargetNum;</div><div class="line">    <span class="keyword">private</span> Context mContext;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">float</span> mOffset;</div><div class="line">    <span class="keyword">private</span> Paint mPaint;</div><div class="line">    <span class="keyword">private</span> Interpolator mInterpolator = <span class="keyword">new</span> AccelerateDecelerateInterpolator();</div><div class="line"></div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mTextCenterX;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mTextHeight;</div><div class="line">    <span class="keyword">private</span> Rect mTextBounds = <span class="keyword">new</span> Rect();</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mTextSize = sp2px(<span class="number">60</span>);</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mTextColor = <span class="number">0xFF000000</span>;</div><div class="line">    <span class="keyword">private</span> Typeface mTypeface;</div><div class="line">    <span class="keyword">private</span> ValueAnimator animator;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ScrollNumber</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>(context, <span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ScrollNumber</span><span class="params">(Context context, AttributeSet attrs)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>(context, attrs, <span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ScrollNumber</span><span class="params">(Context context, AttributeSet attrs, <span class="keyword">int</span> defStyleAttr)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, attrs, defStyleAttr);</div><div class="line"></div><div class="line">        mContext = context;</div><div class="line"></div><div class="line">        mPaint = <span class="keyword">new</span> Paint(Paint.ANTI_ALIAS_FLAG);</div><div class="line">        mPaint.setTextAlign(Paint.Align.CENTER);</div><div class="line">        mPaint.setTextSize(mTextSize);</div><div class="line">        mPaint.setColor(mTextColor);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (mTypeface != <span class="keyword">null</span>) mPaint.setTypeface(mTypeface);</div><div class="line"></div><div class="line">        measureTextHeight();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">resetAnimator</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span>(animator!=<span class="keyword">null</span>)</div><div class="line">            animator.cancel();</div><div class="line">        <span class="comment">//float x = (float) (1 - 1.0 * (mTargetNum - mCurNum) / mDeltaNum);</span></div><div class="line">        animator = ValueAnimator.ofFloat(<span class="number">0f</span>, -<span class="number">1f</span>);</div><div class="line">        animator.setDuration(<span class="number">200</span>);</div><div class="line">        <span class="comment">//animator.setRepeatCount(ValueAnimator.INFINITE);</span></div><div class="line">        <span class="comment">//animator.setRepeatMode(ValueAnimator.REVERSE);</span></div><div class="line">        animator.setInterpolator(<span class="keyword">new</span> LinearInterpolator());</div><div class="line">        animator.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animation)</span> </span>&#123;</div><div class="line">                mOffset = (Float) animation.getAnimatedValue();</div><div class="line">                invalidate();</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        animator.start();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Runnable mScrollRunnable = <span class="keyword">new</span> Runnable() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">float</span> x = (<span class="keyword">float</span>) (<span class="number">1</span> - <span class="number">1.0</span> * (mTargetNum - mCurNum) / mDeltaNum);</div><div class="line">            mOffset -= <span class="number">0.15f</span> * (<span class="number">1</span> - mInterpolator.getInterpolation(x) + <span class="number">0.1</span>);</div><div class="line">            invalidate();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setNumber</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> from, <span class="keyword">final</span> <span class="keyword">int</span> to, <span class="keyword">long</span> delay)</span> </span>&#123;</div><div class="line">        postDelayed(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                setFromNumber(from);</div><div class="line">                setTargetNumber(to);</div><div class="line">                mDeltaNum = to - from;</div><div class="line">                resetAnimator();</div><div class="line">            &#125;</div><div class="line">        &#125;, delay);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTextSize</span><span class="params">(<span class="keyword">int</span> textSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.mTextSize = sp2px(textSize);</div><div class="line">        mPaint.setTextSize(mTextSize);</div><div class="line">        measureTextHeight();</div><div class="line">        requestLayout();</div><div class="line">        invalidate();</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTextFont</span><span class="params">(String fileName)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (TextUtils.isEmpty(fileName))</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"please check file name end with '.ttf' or '.otf'"</span>);</div><div class="line">        mTypeface = Typeface.createFromAsset(mContext.getAssets(), fileName);</div><div class="line">        <span class="keyword">if</span> (mTypeface == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"please check your font!"</span>);</div><div class="line">        mPaint.setTypeface(mTypeface);</div><div class="line">        requestLayout();</div><div class="line">        invalidate();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTextColor</span><span class="params">(<span class="keyword">int</span> mTextColor)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.mTextColor = mTextColor;</div><div class="line">        mPaint.setColor(mTextColor);</div><div class="line">        invalidate();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setInterpolator</span><span class="params">(Interpolator interpolator)</span> </span>&#123;</div><div class="line">        mInterpolator = interpolator;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">measureTextHeight</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//mPaint.getTextBounds(mCurNum + "", 0, 1, mTextBounds);</span></div><div class="line">        mPaint.getTextBounds(<span class="string">"0"</span>, <span class="number">0</span>, <span class="number">1</span>, mTextBounds);</div><div class="line">        mTextHeight = mTextBounds.height();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(<span class="keyword">int</span> widthMeasureSpec, <span class="keyword">int</span> heightMeasureSpec)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> width = measureWidth(widthMeasureSpec);</div><div class="line">        <span class="keyword">int</span> height = measureHeight(heightMeasureSpec);</div><div class="line">        setMeasuredDimension(width, height);</div><div class="line"></div><div class="line">        mTextCenterX = (getMeasuredWidth() - getPaddingLeft() - getPaddingRight()) / <span class="number">2</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">measureHeight</span><span class="params">(<span class="keyword">int</span> measureSpec)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> mode = MeasureSpec.getMode(measureSpec);</div><div class="line">        <span class="keyword">int</span> val = MeasureSpec.getSize(measureSpec);</div><div class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</div><div class="line">        <span class="keyword">switch</span> (mode) &#123;</div><div class="line">            <span class="keyword">case</span> MeasureSpec.EXACTLY:</div><div class="line">                result = val;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> MeasureSpec.AT_MOST:</div><div class="line">            <span class="keyword">case</span> MeasureSpec.UNSPECIFIED:</div><div class="line">                mPaint.getTextBounds(<span class="string">"0"</span>, <span class="number">0</span>, <span class="number">1</span>, mTextBounds);</div><div class="line">                result = mTextBounds.height();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        result = mode == MeasureSpec.AT_MOST ? Math.min(result, val) : result;</div><div class="line">        <span class="keyword">return</span> result + getPaddingTop() + getPaddingBottom() + dp2px(<span class="number">40</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">measureWidth</span><span class="params">(<span class="keyword">int</span> measureSpec)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> mode = MeasureSpec.getMode(measureSpec);</div><div class="line">        <span class="keyword">int</span> val = MeasureSpec.getSize(measureSpec);</div><div class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</div><div class="line">        <span class="keyword">switch</span> (mode) &#123;</div><div class="line">            <span class="keyword">case</span> MeasureSpec.EXACTLY:</div><div class="line">                result = val;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">case</span> MeasureSpec.AT_MOST:</div><div class="line">            <span class="keyword">case</span> MeasureSpec.UNSPECIFIED:</div><div class="line">                mPaint.getTextBounds(<span class="string">"0"</span>, <span class="number">0</span>, <span class="number">1</span>, mTextBounds);</div><div class="line">                result = mTextBounds.width();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        result = mode == MeasureSpec.AT_MOST ? Math.min(result, val) : result;</div><div class="line">        <span class="keyword">return</span> result + getPaddingLeft() + getPaddingRight() + <span class="number">15</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (mCurNum != mTargetNum) &#123;</div><div class="line">            <span class="comment">//postDelayed(mScrollRunnable, 200);</span></div><div class="line">            <span class="keyword">if</span> (mOffset &lt;= -<span class="number">1</span>) &#123;</div><div class="line">                mOffset = <span class="number">0</span>;</div><div class="line">                calNum(mCurNum + <span class="number">1</span>);</div><div class="line">                resetAnimator();</div><div class="line">            &#125;</div><div class="line">            canvas.translate(<span class="number">0</span>, mOffset * getMeasuredHeight());</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            <span class="comment">//不停止的话，会多画一次，因为target已经通过drawNext移动上来了</span></div><div class="line">            <span class="keyword">if</span>(animator!=<span class="keyword">null</span>)</div><div class="line">                animator.cancel();</div><div class="line">        &#125;</div><div class="line">        drawSelf(canvas);</div><div class="line">        drawNext(canvas);</div><div class="line"><span class="comment">//        canvas.restore();</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//停止动画</span></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDetachedFromWindow</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span>(animator!=<span class="keyword">null</span>)</div><div class="line">            animator.cancel();</div><div class="line">        <span class="keyword">super</span>.onDetachedFromWindow();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setFromNumber</span><span class="params">(<span class="keyword">int</span> number)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (number &lt; <span class="number">0</span> || number &gt; <span class="number">9</span>)</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"invalidate number , should in [0,9]"</span>);</div><div class="line">        calNum(number);</div><div class="line">        mOffset = <span class="number">0</span>;</div><div class="line">        invalidate();</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">calNum</span><span class="params">(<span class="keyword">int</span> number)</span> </span>&#123;</div><div class="line">        number = number == -<span class="number">1</span> ? <span class="number">9</span> : number;</div><div class="line">        number = number == <span class="number">10</span> ? <span class="number">0</span> : number;</div><div class="line">        mCurNum = number;</div><div class="line">        mNextNum = number + <span class="number">1</span> == <span class="number">10</span> ? <span class="number">0</span> : number + <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawNext</span><span class="params">(Canvas canvas)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> y = getMeasuredHeight() / <span class="number">2</span> + getMeasuredHeight();</div><div class="line">        canvas.drawText(mNextNum + <span class="string">""</span>, mTextCenterX, y + mTextHeight / <span class="number">2</span>,</div><div class="line">                mPaint);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawSelf</span><span class="params">(Canvas canvas)</span> </span>&#123;</div><div class="line">        <span class="comment">//问：canvas.drawText("3", x, y, paint);  x和y是指画得时候数字3中心的坐标吗？还是左上角的坐标？</span></div><div class="line">        <span class="comment">//x默认是‘3’这个字符的左边在屏幕的位置，如果设置了paint.setTextAlign(Paint.Align.CENTER);那就是字符的中心，</span></div><div class="line">        <span class="comment">//y是指定这个字符baseline在屏幕上的位置。</span></div><div class="line">        <span class="comment">//mPaint.setTextAlign(Paint.Align.CENTER);</span></div><div class="line">        <span class="keyword">if</span> (mCurNum != -<span class="number">1</span>) &#123;</div><div class="line">            <span class="keyword">int</span> y = getMeasuredHeight() / <span class="number">2</span>;</div><div class="line">            canvas.drawText(mCurNum + <span class="string">""</span>, mTextCenterX, y + mTextHeight / <span class="number">2</span>, mPaint);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTargetNumber</span><span class="params">(<span class="keyword">int</span> nextNum)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.mTargetNum = nextNum;</div><div class="line">        invalidate();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">dp2px</span><span class="params">(<span class="keyword">float</span> dpVal)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,</div><div class="line">                dpVal, getResources().getDisplayMetrics());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">sp2px</span><span class="params">(<span class="keyword">float</span> dpVal)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> (<span class="keyword">int</span>) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,</div><div class="line">                dpVal, getResources().getDisplayMetrics());</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p>参考链接：<a href="http://mafei.site/2016/07/17/android-valueanimator/" target="_blank" rel="external">mafei</a>,<a href="http://blog.csdn.net/qinjuning/article/details/7110211/" target="_blank" rel="external">View绘制流程</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">大路</a></p>
+        <p><span>发布时间:</span>2016-07-21, 18:44:12</p>
+        <p><span>最后更新:</span>2016-07-25, 18:44:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2016/07/21/android-valueanimator-in-diy-view/" title="ValueAnimator在自定义View中的使用">http://dalufan.com/2016/07/21/android-valueanimator-in-diy-view/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://dalufan.com/2016/07/21/android-valueanimator-in-diy-view/　　作者: 大路" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2016/07/27/android-fragment-state-saving-best-practices/">
+                    fragment状态保存最佳实践
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/07/03/mysql-base-usage-03/">
+                    《mysql 必知必会》读书笔记三（21-30）
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#ValueAnimator"><span class="toc-number">1.</span> <span class="toc-text">ValueAnimator</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#用法："><span class="toc-number">1.1.</span> <span class="toc-text">用法：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TypeEvaluator"><span class="toc-number">2.</span> <span class="toc-text">TypeEvaluator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TimeInterpolator"><span class="toc-number">3.</span> <span class="toc-text">TimeInterpolator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AnimatorSet"><span class="toc-number">4.</span> <span class="toc-text">AnimatorSet</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"ValueAnimator在自定义View中的使用　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2016/07/21/android-valueanimator-in-diy-view/" data-title="ValueAnimator在自定义View中的使用" data-url="http://dalufan.com/2016/07/21/android-valueanimator-in-diy-view/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"dalufan"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2016/07/27/android-fragment-state-saving-best-practices/" title="上一篇: fragment状态保存最佳实践">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/07/03/mysql-base-usage-03/" title="下一篇: 《mysql 必知必会》读书笔记三（21-30）">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/07/android-startActivityForResult-FragmentActivity-Fragment/">彻底搞懂startActivityForResult在FragmentActivity和Fragment中的异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/03/android-dynamicicon-example/">android动态更新APP图标和label</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/android-ViewPager-Fragment-LazyLoad/">ViewPager+Fragment LazyLoad 最优解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/08/java-singleton-good-write/">Java更好的单例写法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/02/android-recycleview-useage-issues/">RecycleView的使用及坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/android-click-icon-restart/">防止App在后台运行，点击应用桌面图标重新启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/android-some-little-knowledge/">Android的一些开发细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/30/mysql-join-usage/">图解SQL的Join</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/swift-string-create-class/">Swift:通过字符串创建类对象  </a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/android-fragment-backpress/">Fragment监听返回键事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/08/ios-constraint-autolayout-autoresizing/">autolayout和autoresizing的使用注意事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/xcode-eclipse-key-xcodeKit/">xcode中快速删除拷贝一行，like eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/ios-imageNamed-imageWithContentsOfFile-diff/">imageNamed和imageWithContentsOfFile的使用和区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/07/android-rotate-imageview/">Android 自定义可旋转的ImageView</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/mysql-case-when-and-left-join-demo/">mysql中UNIQUE、判断、组合查找的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/27/android-fragment-state-saving-best-practices/">fragment状态保存最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/03/mysql-base-usage-03/">《mysql 必知必会》读书笔记三（21-30）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/30/mysql-base-usage-02/">《mysql 必知必会》读书笔记二（13-20）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/28/mysql-base-usage-01/">《mysql 必知必会》读书笔记一（1-12）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/21/android-listview-usage/">android listview的一些技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/11/android-react-native-learn-day02/">react-native学习笔记二</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/26/android-react-native-learn-day01/">react-native学习笔记一</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/17/android-widget-imageview-1/">自定义ImageView系列第一版</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/26/web-maven-springmvc-start-learn/">使用maven配置springmvc的过程中遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/23/java-uml-learn/">UML中的五种关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/17/android-art-of-android-deveopment-note-2/">《Android 开发艺术探索》读书笔记--第二章 IPC机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/13/effective-java-learn-note-10-01/">《Effective Java》读书笔记--第十章 并发（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/20/android-art-of-android-deveopment-note-12/">《Android 开发艺术探索》读书笔记--第十二章 Bitmap 第十五章 性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/11/thinking-of-getting-the-current-activity-in-android/">如何获取当前Activity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/08/workflow-feature-branch-Pull-Request/">WorkFlow--功能分支工作流(Pull Requests)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/02/workflow-Pull-Request/">Pull Requests的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/20/android-art-of-android-deveopment-note-10/">《Android 开发艺术探索》读书笔记--第十章Android的消息机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android-art-of-android-deveopment-note-4/">《Android 开发艺术探索》读书笔记--第四章 View的工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/workflow-centralized-git-rebase/">WorkFlow--集中式工作流(git rebase)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/03/android-activity-onActivityResult/">Activity中onActivityResult存在的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/22/android-webview-upload-file/">Webview中上传文件支持全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/18/android-art-of-android-deveopment-note-3/">《Android 开发艺术探索》读书笔记--第三章View事件体系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/02/java-JSONObject-Stub/">java工程中调用Android库出现“Stub!”错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-optimization-thread-ThreadPoolExecutor/">android性能优化--使用线程池处理异步任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/26/android-View-LinearGradient/">android中使用LinearGradient实现文字闪烁的效果</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/24/android-Activity-launch-learn/">Activity启动过程全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/23/android-DownloadManager-usage/">android中使用DownloadManager来下载</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/22/android-context-learn/">Android Context完全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-achievement/">Android项目重构的整理-实现篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-view/">Android项目重构的整理-界面篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-architecture/">Android项目重构的整理-架构篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-webview-js-safe-message/">Webview与Js之间的另一种交互</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-error-UncaughtExceptionHandler/">android中处理崩溃的一般方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/18/android-mat-usage/">MAT的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/17/android-gc-leak/">android 内存泄露以及GC的相关知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/12/android-onSaveInstanceState-learn/">Activity和Fragement中onSaveInstanceState()的使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/07/app-hearsay/">道听途说</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can't create handler inside thread that has not</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-view-issues/">android中view相关的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/18/android-dex-inject-learn/">android dex注入实现详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/17/android-canvas-draw/">android中canvas的一些属性和用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/11/android-onTouchEvent/">Android触摸事件的响应机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/10/free-mail-mailinator/">mailinator 免费邮箱的使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-setOnPageChangeListener/">ViewPager的setOnPageChangeListener方法详解 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-Activity-ActionBarActivity-AppCompatActivity/">android中关于Activity/ActionBarActivity/AppCompatActivity的区分与理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/07/android-BitmapFactory-OutOfMemoryError/">android BitmapFactory的OutOfMemoryError的解决方案 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/03/git-android-as/">在android Studio 和 Eclipse 的 git 插件操作'代码提交'以及'代码冲突' </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/01/android-QR-changesize/">Zxing二维码扫描框大小修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/retrofit-usage/">Retrofit 中文文档</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/git-reset-soft-mixed-hard/">Difference between git reset soft, mixed and hard</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/27/android-so-usage/">关于android的.so文件你所需要知道的</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/26/android-EmailAutoCompleteTextView/">android 邮箱地址自动补全</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/24/android-setCompoundDrawables-setCompoundDrawablesWithIntrinsicBounds/">android setCompoundDrawables与setCompoundDrawablesWithIntrinsicBounds的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/20/android-Drawable-usage/">android Drawable 那些不为人知的高效用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/29/hello-world/">Hexo的使用方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/10/eclipse-cannot-open-git-upload-pack/">eclipse git push和pull出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/01/android-listview-ontouchevent/">android中对GridView， ListView等滚动控件的Touch事件onInterceptTouchEvent，onTouchEvent理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/29/android-javascript-exchange/">Android与Javascript交互概要</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/21/android-performance-optimization-SparseArray/">android应用性能优化中使用SparseArray替代HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/12/java-regex-useage/">Java正则表达式的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/05/android-motionevent/">MotionEvent中getX()、getRawX()等位置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/26/android-service-download-singlethread/">android中Service断点下载-单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/18/service-not-be-killed/">android保证Service不被杀掉的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/12/android-Intent-PendingIntent/">android中Intent和PendingIntent的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/10/android-AlarmManager/">android中AlarmManager的说明例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/android-handler-learn/">android中Handler的使用Tips</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/14/android-sqlite-err/">sqlite遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/14/android-sqlite-learn/">sqlite的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/11/android-thread-volatile-synchronized-final/">进程通信中volatile, synchronized, final的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/17/java-Process/">java.lang.Process 阻塞问题 & Runtime.exec()的陷阱</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/16/android-excel/">android操作Excel文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/14/android-Smail-learn/">Smail语法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-ContentObserver-learn/">android中ContentObserver类详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/30/android-app-usagestats/">android 获取各应用的运行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/29/ubuntu-android-driver/">ubuntu下解决不能识别android设备</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-View-learn-three/">android中简单自定义view③</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-DownloadManager/">android DownloadManager广播事件：下载完成、通知栏点击事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-one/">android中View的使用及解释①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-ContentProvider-learn/">android ContentProvider基本使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-Uri-learn/">android中Uri的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/20/android-mediaplayer-usage/">android MediaPlayer基本使用方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/30/net-get-post/">GET请求和POST请求的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/28/android-sec-commonly/">android一些安全事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-Intent/">android中Intent使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-BroadcastReceiver/">android中BroadcastReceiver应用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-activity-task/">android中Activity的task</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/25/android-activity-launchMode/">android中Activity的四种launchMode</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/18/android-permission/">android声明和使用权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/14/android-view-IllegalArgumentException/">View not attached to window manager</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/12/httpclient-learn-conclusion/">httpclient使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/10/android-MediaRecorder-stop-error/">android录音时stop出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/08/android-xutils-http-learn/">xutils中HttpUtils模块分析①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/10/20/android-error/">android异常/错误集</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/30/java-Generics/">java中泛型Generics的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/26/java-ThreadPoolExecutor/">android里面ThreadPoolExecutor的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/24/java-volatile-static/">java中volatile和static的区别 </a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/21/java-shutdown/">线程池shutdown()方法和shutdownNow()区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-volatile/">java 里面volatile的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-AtomicInteger/">java 里面AtomicInteger的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/07/java-string-format/">java中string.format方法使用介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/06/java-Serializable/">java 里面Serializable的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/05/eclipse-git-merge/">eclipse中git解决冲突</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/04/java-enum-final/">java中枚举和常量定义的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/03/java-enum/">java中enum的用法详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/05/17/git-api/">git常用命令及思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/java-trans/">java是传值还是传引用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/session-cookie/">详解COOKIE与SESSION的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/02/16/string-stringbuffer/">String和StringBuffer的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/08/24/java-reflection/">Java反射Demo</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/ubuntu_order/">ubuntu命令学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/sublime-text-2/">Sublime Text 2使用简介</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

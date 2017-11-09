@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="大路" />
+
+
+
+<meta name="description" content="0x01 简述前段时间在bluebox的一份android安全pdf中看到一个AndroidManifest Ambiguity(模糊)方案。该方案基于android系统解析AXML的一个特点：android在解析AXML的属性的时候，是通过该属性的res id号而非属性名定位的。所谓的AXML就是AndroidManifest.xml对应的二进制文件，APK包中存储的就是AXML。比如属性：
+1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AndroidManifest Ambiguity方案原理及代码">
+<meta property="og:url" content="http://dalufan.com/2016/01/01/android-sec-AndroidManifest/index.html">
+<meta property="og:site_name" content="道听途说">
+<meta property="og:description" content="0x01 简述前段时间在bluebox的一份android安全pdf中看到一个AndroidManifest Ambiguity(模糊)方案。该方案基于android系统解析AXML的一个特点：android在解析AXML的属性的时候，是通过该属性的res id号而非属性名定位的。所谓的AXML就是AndroidManifest.xml对应的二进制文件，APK包中存储的就是AXML。比如属性：
+1">
+<meta property="og:image" content="http://dalufan.com/article_images/android_sec_manifest01.png">
+<meta property="og:image" content="http://dalufan.com/article_images/android_sec_manifest04.png">
+<meta property="og:image" content="http://dalufan.com/article_images/android_sec_manifest02.png">
+<meta property="og:image" content="http://dalufan.com/article_images/android_sec_manifest03.png">
+<meta property="og:updated_time" content="2016-01-01T14:55:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AndroidManifest Ambiguity方案原理及代码">
+<meta name="twitter:description" content="0x01 简述前段时间在bluebox的一份android安全pdf中看到一个AndroidManifest Ambiguity(模糊)方案。该方案基于android系统解析AXML的一个特点：android在解析AXML的属性的时候，是通过该属性的res id号而非属性名定位的。所谓的AXML就是AndroidManifest.xml对应的二进制文件，APK包中存储的就是AXML。比如属性：
+1">
+<meta name="twitter:image" content="http://dalufan.com/article_images/android_sec_manifest01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="道听途说" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>AndroidManifest Ambiguity方案原理及代码 | 道听途说</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?d139b23707f5aa48a2430a8a9e8977ba";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">大路</a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Activity/">Activity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AlarmManager/">AlarmManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/AtomicInteger/">AtomicInteger</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bitmap/">Bitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BroadcastReceiver/">BroadcastReceiver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentObserver/">ContentObserver</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ContentProvider/">ContentProvider</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Context/">Context</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DownloadManager/">DownloadManager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Drawable/">Drawable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Enum/">Enum</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/EventBus/">EventBus</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fragment/">Fragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Generics/">Generics</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Handler/">Handler</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ImageView/">ImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Intent/">Intent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ListView/">ListView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaPlayer/">MediaPlayer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MediaRecorder/">MediaRecorder</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MotionEvent/">MotionEvent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RecycleView/">RecycleView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Retrofit/">Retrofit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Serializable/">Serializable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Service/">Service</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Smali/">Smali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SparseArray/">SparseArray</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/String/">String</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/StringBuffer/">StringBuffer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextView/">TextView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPoolExecutor/">ThreadPoolExecutor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UIImageView/">UIImageView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Uri/">Uri</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/View/">View</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ViewPager/">ViewPager</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebView/">WebView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Xutils/">Xutils</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zxing/">Zxing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/animator/">animator</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/app/">app</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/as/">as</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/autolayout/">autolayout</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cookie/">cookie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dex/">dex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/diff/">diff</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eclipse/">eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/email/">email</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/error/">error</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/example/">example</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/excel/">excel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/final/">final</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gc/">gc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/issues/">issues</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/join/">join</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/knowledge/">knowledge</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mat/">mat</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/maven/">maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/net/">net</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/note/">note</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/permission/">permission</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/process/">process</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ragment/">ragment</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reconsitution/">reconsitution</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reflect/">reflect</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/regex/">regex</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rn/">rn</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scrollView/">scrollView</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sec/">sec</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/session/">session</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setCompoundDrawables/">setCompoundDrawables</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shutdown/">shutdown</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/so/">so</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/startActivityForResult/">startActivityForResult</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/static/">static</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/swift/">swift</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/thread/">thread</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/uml/">uml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/usagestats/">usagestats</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/volatile/">volatile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/workflow/">workflow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xcode/">xcode</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://wangrong.xyz/">WR</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">我们走在大路上</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">大路</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">大路</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="Mailto:dalufine@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dalufine" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-android-sec-AndroidManifest" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/01/01/android-sec-AndroidManifest/" class="article-date">
+      <time datetime="2016-01-01T14:55:12.000Z" itemprop="datePublished">2016-01-01</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      AndroidManifest Ambiguity方案原理及代码
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sec/">sec</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="0x01-简述"><a href="#0x01-简述" class="headerlink" title="0x01 简述"></a>0x01 简述</h3><p>前段时间在bluebox的一份android安全pdf中看到一个AndroidManifest Ambiguity(模糊)方案。该方案基于android系统解析AXML的一个特点：android在解析AXML的属性的时候，是通过该属性的res id号而非属性名定位的。所谓的AXML就是AndroidManifest.xml对应的二进制文件，APK包中存储的就是AXML。比如属性：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">public</span> <span class="attr">type</span>=<span class="string">"attr"</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">id</span>=<span class="string">"0x01010003"</span> /&gt;</span></div></pre></td></tr></table></figure>
+<p>它的属性名为name，id号为0x01010003。</p>
+<p>该方案的大致原理如下图所示：</p>
+<p><img src="/article_images/android_sec_manifest01.png" alt="alt"></p>
+<a id="more"></a> 
+<p>我简要概括一下：</p>
+<p>我们在axml(<code>注意是axml不是AndroidManifest.xml</code>)中添加一个属性，该属性的属性名是name，属性的值是some.class，属性的ID号为0。根据前文所述，android系统对于非法的res ID号是不会解析的。所以我们添加这个无用的属性后，并不影响该APK的正常工作(上图左下角所示)，但是对于apktool之类的逆向工具而言，他们却会对这个无用的属性进行解析(上图右下角所示)。所以，如果我们进行重打包的话，apktool就会将该属性变更为一个ID号0x01010003的可以被系统解析的属性。这样造成的后果就是：由于我们的APK中并没有实现detect.class类，所以APK启动时会报错“there is no detect.class~~”。</p>
+<h3 id="0x02-实现方案"><a href="#0x02-实现方案" class="headerlink" title="0x02 实现方案"></a>0x02 实现方案</h3><p>该PDF虽然提出了这个方案，但并没有给出实现的代码(其实它就给了上面那张图~其它什么都木有了~)，google也是空白。所以当我看懂原理之后，就想自己将它实现出来。哪知事情并没有我想的那么简单~~</p>
+<p><img src="/article_images/android_sec_manifest04.png" alt="alt"></p>
+<h4 id="2-1-AXML文件格式"><a href="#2-1-AXML文件格式" class="headerlink" title="2.1 AXML文件格式"></a>2.1 AXML文件格式</h4><p>遇到的第一个挑战就是：网上竟然搜不到AXML文件的格式！！！当时差点就放弃了，不过后来一想，既然apktool能解析AXML那就说明它是了解AXML的文件格式的，所以就上网搜索了一下解析AXML的各种解析代码，综合过后觉得Claud大大的AXML Parser代码比较利于总结AXML的文件格式。所以就以该代码问蓝本总结了一下文件格式，如下表所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div></pre></td><td class="code"><pre><div class="line"><span class="number">0x0</span>~<span class="number">0x3</span>    magic: <span class="number">0x03000800</span>固定值</div><div class="line"></div><div class="line"><span class="number">0x4</span>~<span class="number">0x7</span>    filesize: 文件整体大小</div><div class="line"></div><div class="line"><span class="number">0x8</span>~<span class="number">0xb</span>     StringTag: 字符串块开始标志，<span class="number">0x01001c00</span>固定值</div><div class="line"></div><div class="line"><span class="number">0xc</span>~<span class="number">0xf</span>      StringChunkSize:字符串块大小</div><div class="line"></div><div class="line"><span class="number">0x10</span>~<span class="number">0x13</span>   count of strings:字符串个数,</div><div class="line"></div><div class="line"><span class="number">0x14</span>~<span class="number">0x17</span>   count of styles: 类型个数</div><div class="line"></div><div class="line"><span class="number">0x18</span>~<span class="number">0x1b</span>   reserve field: 保留的，为<span class="number">0</span></div><div class="line"></div><div class="line"><span class="number">0x1c</span>~<span class="number">0x1f</span>    <span class="built_in">string</span>的起始偏移值：注意，这个偏移值是相对于stringChunk而言的！</div><div class="line"></div><div class="line"><span class="number">0x20</span>~<span class="number">0x23</span>    styles的起始偏移值：同上</div><div class="line"></div><div class="line">下面存储的就是n个连续的<span class="built_in">string</span>的偏移值，每个偏移值占<span class="number">4</span>字节，需要注意的是，这个偏移值加上<span class="built_in">string</span>的起始偏移值和<span class="number">0x8</span>才是真正的偏移值！n的大小就是<span class="number">0x10</span>~<span class="number">0x13</span>的大小</div><div class="line"></div><div class="line">然后就是n个连续的style的偏移值，同上~</div><div class="line"></div><div class="line">String数据块</div><div class="line"></div><div class="line">........</div><div class="line"></div><div class="line">Style数据块</div><div class="line"></div><div class="line">........</div><div class="line"></div><div class="line">注意：到这里，stringchunk就算是结束了</div><div class="line"></div><div class="line">下面就是ResourceChunk了，里面保存的就是资源ID号</div><div class="line"></div><div class="line">ResourceTag: <span class="number">0x80010800</span>  </div><div class="line"></div><div class="line">ResourceChunkSize: 资源ID块的大小</div><div class="line"></div><div class="line">连续 ResourceChunkSize/<span class="number">4</span> <span class="number">-2</span>个res id值。<span class="number">-2</span>主要是除去上面的<span class="number">8</span>字节resourceChunkHeader。</div><div class="line"></div><div class="line">每个res id占<span class="number">4</span>字节</div><div class="line"></div><div class="line">                           ResourceChunk结束</div><div class="line"></div><div class="line">下面就是一些连续的chunk块了：</div><div class="line"></div><div class="line">CHUNK_STARTNS:  doc开始标志,<span class="number">0x00011000</span></div><div class="line"></div><div class="line">CHUNK SIZE:</div><div class="line"></div><div class="line">line number</div><div class="line"></div><div class="line">unknown, <span class="number">0xffffffff</span></div><div class="line"></div><div class="line">下面就是一个<span class="keyword">namespace</span> record结构体，简称NsRecord</div><div class="line"></div><div class="line">NsRecord-&gt;prefix</div><div class="line"></div><div class="line">NsRecord-&gt;uri,</div><div class="line"></div><div class="line">然后就是递归地进行chunk操作，因为一个命名空间里面往往含有很多子chunk</div><div class="line"></div><div class="line">CHUNK_TYPE:<span class="number">0x02011000</span>-&gt;<span class="number">0x00100102</span>为CHUNK_STARTTAG</div><div class="line"></div><div class="line">CHUNK_SIZE </div><div class="line"></div><div class="line">line number</div><div class="line"></div><div class="line">unknown, <span class="number">0xffffffff</span> </div><div class="line"></div><div class="line">current tag's <span class="keyword">namespace</span>'s uri</div><div class="line"></div><div class="line">当前tag的名字 所一个<span class="built_in">string</span>索引值</div><div class="line"></div><div class="line">flags, unknown usage</div><div class="line"></div><div class="line">当前标签含有的attr个数，注意最后结果要&amp;<span class="number">0x0000ffff</span></div><div class="line"></div><div class="line">classAttribute, unknown usage</div><div class="line"></div><div class="line">下面就是连续的n个attribution chunk，attribution的结构体如下：</div><div class="line"></div><div class="line"><span class="comment">/* attribute structure within tag */</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span>&#123;</div><div class="line"></div><div class="line">      <span class="keyword">uint32_t</span> uri;        <span class="comment">/* uri of its namespace  index  of strings*/</span></div><div class="line"></div><div class="line">      <span class="keyword">uint32_t</span> name;   <span class="comment">/*属性名，索引值 index  of strings */</span></div><div class="line"></div><div class="line">      <span class="keyword">uint32_t</span> <span class="built_in">string</span>;   <span class="comment">/* attribute value if type == ATTR_STRING ，索引值*/</span></div><div class="line"></div><div class="line">      <span class="keyword">uint32_t</span> type;             <span class="comment">/* attribute type, == ATTR_* * / 注意该值需要右移24位</span></div><div class="line"></div><div class="line">      uint32_t data;            /* attribute value, encoded on type */</div><div class="line"></div><div class="line">&#125; Attribute_t;</div><div class="line"></div><div class="line">依次类推</div><div class="line"></div><div class="line">........</div></pre></td></tr></table></figure>
+<h4 id="2-2修改AXML的注意事项"><a href="#2-2修改AXML的注意事项" class="headerlink" title="2.2修改AXML的注意事项"></a>2.2修改AXML的注意事项</h4><p>了解了AXML的文件格式，我们就可以想法进行属性插入了。不过在属性插入之前，我们必须规划好具体地实施方案，因为它涉及到的东西并不算少。</p>
+<p>1、 首先，需要对属性结构体做进一步分析。它的格式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">/* attribute structure within tag */</span></div><div class="line"></div><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span>&#123;</div><div class="line"></div><div class="line">         <span class="keyword">uint32_t</span> uri;       <span class="comment">/* uri of its namespace  index  of strings*/</span></div><div class="line"></div><div class="line">         <span class="keyword">uint32_t</span> name;      <span class="comment">/*属性名，索引值 index  of strings */</span></div><div class="line"></div><div class="line">         <span class="keyword">uint32_t</span> <span class="built_in">string</span>;  <span class="comment">/* attribute value if type == ATTR_STRING ，索引值*/</span></div><div class="line"></div><div class="line">         <span class="keyword">uint32_t</span> type; <span class="comment">/* attribute type, == ATTR_* * / 注意该值需要右移24位</span></div><div class="line"></div><div class="line">         uint32_t data;  /* attribute value, encoded on type */</div><div class="line"></div><div class="line">&#125; Attribute_t;</div><div class="line"></div><div class="line"></div><div class="line">重点是name, <span class="built_in">string</span>, data。我提取出了一个AXML中属性片段，如下所示：</div><div class="line"></div><div class="line">Offset      <span class="number">0</span>  <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>   <span class="number">8</span>  <span class="number">9</span>  A  B  C  D  E  F</div><div class="line"></div><div class="line"><span class="number">0</span>C <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>  <span class="number">05</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>   FF FF FF FF   <span class="number">08</span> <span class="number">00</span> <span class="number">00</span> <span class="number">01</span>   <span class="number">01</span> <span class="number">00</span> <span class="number">06</span> <span class="number">7F</span> </div><div class="line"></div><div class="line"><span class="number">0</span>C <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>  <span class="number">06</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>   FF FF FF FF   <span class="number">08</span> <span class="number">00</span> <span class="number">00</span> <span class="number">01</span>   <span class="number">00</span> <span class="number">00</span> <span class="number">05</span> <span class="number">7F</span></div><div class="line"></div><div class="line"><span class="number">0</span>C <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>[w1]   <span class="number">04</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>[w2]    <span class="number">17</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>[w3]   <span class="number">08</span> <span class="number">00</span> <span class="number">00</span> <span class="number">03</span> [w4]   <span class="number">17</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>[w5] </div><div class="line"></div><div class="line"> [w1]uri：命名空间的URI，是<span class="built_in">string</span>的索引值</div><div class="line"></div><div class="line"> [w2]name：属性名，也是一个<span class="built_in">string</span>的索引值</div><div class="line"></div><div class="line"> [w3]<span class="built_in">string</span>：如果属性type为ATTR_STRING的话，此值就是属性android:name=<span class="string">"xxx"</span>,xxx在<span class="built_in">string</span>的索引值。其余情况均为<span class="number">0xffffffff</span></div><div class="line"></div><div class="line"> [w4]type：属性的类型，对于android:name，类型值为<span class="number">0x03000008</span></div><div class="line"></div><div class="line"> [w5]data：属性的数据值，对于ATTR_STRING而言，它的值就是<span class="built_in">string</span>的值。</div></pre></td></tr></table></figure>
+<p>可以发现，结构体里面并没有一个叫做res ID的成员，那么系统又是如何获取某个属性的ID号的呢？原来这里的<code>name成员是身兼两职</code>，即作为属性名的一个string索引，又作为res ID的索引。比如这里name = 4，它对应StringChunk中的字符串为”name”，对应ResourceChunk中的res ID 0x01010003。所以要插入一个属性名为name，ID号又为0的属性，我们就必须新建一个string，该string的值为name，再新建一个res ID，值为0，<code>且两者在各自Chunk区域的索引值是相等的(这是重点)</code>。</p>
+<p>2、其次，就是在StringChunk中string的对齐问题(最初被弄得脑洞大开~)。</p>
+<p>AXML中几乎所有的成员都是uint32型的，除了使用UTF-16编码的string数据块之外。所以在加入string后必须对string数据块进行4字节对齐。而如果原AXML的string数据块已经进行过4字节对齐(即人为地填充了几个0x00)的话，我们就需要注意UTF-16编码的最后一个string的第一个字节的大小并不包含这几个填充的0x00(这个字节表示该string所占用的字节数，详情可查阅UTF-16编码相关资料)。为了绕过烦人的对齐问题，我们使用取巧的方式获取字符串的长度：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">stringLen = stringChunkSize - stringOffset; <span class="comment">//此时的stringLen肯定是4字节对齐的</span></div></pre></td></tr></table></figure>
+<p>当然，这是在没有style的情况下，如果有的话，还得采取额外的操作(实现代码中有~)。为了简便，我是直接将添加的string加在这个对齐后的字符串之后的，这样就只需要考虑添加的字符串是否需要对齐了~</p>
+<p>3、然后，就是ResourceChunk的扩充。</p>
+<p>在1中已经提到插入的属性的name的值同时充当res ID索引值。而通常ResourceChunk中的res ID个数是远少于string 的个数的，那么这就需要我们将ResourceChunk进行扩充。扩充很简单，全部赋值为0即可。</p>
+<p>4、最后，除了需要添加数据外，还需要修改原文件的某些“计量值”，这些计量值都是与数据块大小或偏移值有关的，总结如下：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">①fileSize</div><div class="line"></div><div class="line">②StringChunkSize</div><div class="line"></div><div class="line">③<span class="built_in">count</span> <span class="keyword">of</span> <span class="built_in">string</span></div><div class="line"></div><div class="line">④styles的起始偏移值(如果有style的话就需要修改)</div><div class="line"></div><div class="line">⑤ResourceChunkSize</div><div class="line"></div><div class="line">⑥<span class="built_in">application</span>所属chunk的chunksize</div><div class="line"></div><div class="line">⑦applicationh含有的属性个数</div></pre></td></tr></table></figure>
+<h4 id="2-3-修改AXML步骤"><a href="#2-3-修改AXML步骤" class="headerlink" title="2.3 修改AXML步骤"></a>2.3 修改AXML步骤</h4><ol>
+<li>修改StringChunk，添加UTF-16表示的字符串chouchou.class和name，并为这两个字符串添加偏移值条目。同时对StringChunkSize、count of string、styles的起始偏移值进行修复；</li>
+<li>修改ResourceChunk，主要是进行res ID扩充和对ResourceChunkSize的修复</li>
+<li>修改application所在的chunk，插入属性，同时对chunksize和applicationh含有的属性个数进行修复；</li>
+<li>将不需要修改的部分copy到合适的位置；</li>
+<li>修复fileSize</li>
+</ol>
+<p>当然，具体地实现肯定比上诉步骤复杂一些，不过实现源码中有较为详细的注释，大家可参照源码阅读~</p>
+<h3 id="0x03-代码说明"><a href="#0x03-代码说明" class="headerlink" title="0x03 代码说明"></a>0x03 代码说明</h3><p>AxmlParser.h/.c是Claud大大解析axml的源码，出于对作者的感谢以及让大家更详细地了解AXML的解析过程(其实，是我实在是不想自己写解析代码o(╯□╰)o)，我将实现代码跟它合并到一块了。AxmlModify.c就是我写的实现AXML修改功能。</p>
+<h3 id="0x04-使用方法"><a href="#0x04-使用方法" class="headerlink" title="0x04 使用方法"></a>0x04 使用方法</h3><p>当前代码还不完善，只是初步实现了插入application.attr(“name”, “chouchou.class”,0x0)的功能。所以并非最终版。</p>
+<p>代码只能在linux下运行，下载代码后make即可生成可执行文件manifestAmbiguity。然后直接运行./manifestAmbiguity可以得到完整的使用说明。</p>
+<p>修改前：</p>
+<p><img src="/article_images/android_sec_manifest02.png" alt="alt"></p>
+<p>修改后：</p>
+<p><img src="/article_images/android_sec_manifest03.png" alt="alt"></p>
+<p>将修改后的xml覆盖原APK中的xml，然后删掉原来的签名文件夹再进行签名即可。这时候如果对按照此方案修改后的APK进行重打包，就会发现重打包的APK已经无法启动了。</p>
+<h3 id="0x05-下一步工作"><a href="#0x05-下一步工作" class="headerlink" title="0x05 下一步工作"></a>0x05 下一步工作</h3><p>由于目前的apk软件保护主要是基于dex代码加密和so库文件加密，对AndroidManifest.xml并没有进行任何操作，而AndroidManifest.xml作为apk的入口文件，其重要性是不言而喻的。所以我想能不能在此文件中做些“手脚”，然后结合相应的处理代码实现另一角度的软件保护。</p>
+<p>比如，我们完全可以实现那个陷阱类trap.class，且这个类继承自application等等，以便被重打包的apk也可运行。只是，从一开始，该apk就运行在一个错误的环境中，至于之后的操作，那就可以尽情发挥了。</p>
+<p>或者，我们可以在其他tag中插入一些不会影响apk运行的属性(即新添加的属性不可被系统识别，重打包后该属性能被系统识别但又不会影响apk的运行)，然后在代码中检查AndroidManifest.xml是否含有该属性，如果有就说明软件被重打包了。</p>
+<p>等等~</p>
+<p>如果大家有好的建议或方法，请一定不吝赐教~谢谢！</p>
+<p>代码地址：<br><a href="https://github.com/wanchouchou/ManifestAmbiguity" target="_blank" rel="external">https://github.com/wanchouchou/ManifestAmbiguity</a></p>
+<blockquote>
+<p>目前我在进行dalvik的插桩，但是apk的每个method对于使用的寄存器数有限制，有的限制在v0 ~v15之间，有的是v0 ~v 255. 这个设置感觉跟编译出来的结果有关，<br>但是我经常会需要加入比较多的 寄存器， 遇到限制在 v0 ~ v15 之间的限制，就没有办法了， 会重编译出现错误。 </p>
+</blockquote>
+<p>其实一般情况下在你插桩的指令附近找到几个可以复用的寄存器还是很简单的，一般添加打log相关的指令我都是这么干。不过如果你需要添加很复杂的代码，我觉得有两种方案：</p>
+<ol>
+<li>把你要添加的代码单独写到一个类中，然后你只需要插入一条指令Invoke-direct/static/virtual去调用这个类中的相应方法即可，这样也就需要2，3个寄存器，也就不存在寄存器不够用的情况了；</li>
+<li>将所有的只能用16个寄存器的方法修改为可使用256个寄存器的方法。这涉及到dalvik指令，一般你看到invoke-direct/range这种指令的话，它所调用的方法就是可使用256个寄存器的。这里/range表示扩展寄存器，通常方法的寄存器都是vA这种形式，A表示4bit数据，即0~15。而range方法的寄存器都是vAA这种形式，AA表示8bit字节，即0~255，所以如果你要对某个方法的寄存器进行扩展的话，就需要改指令了。<br>个人推荐第一种方案：）</li>
+</ol>
+<hr>
+<p>参考链接：<a href="http://www.cnblogs.com/wanyuanchun/p/4084292.html" target="_blank" rel="external">万抽抽</a>&lt;–&gt;<a href="http://bbs.pediy.com/showthread.php?t=194206" target="_blank" rel="external">AndroidManifest二进制文件格式分析</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">大路</a></p>
+        <p><span>发布时间:</span>2016-01-01, 22:55:12</p>
+        <p><span>最后更新:</span>2016-01-01, 22:55:12</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2016/01/01/android-sec-AndroidManifest/" title="AndroidManifest Ambiguity方案原理及代码">http://dalufan.com/2016/01/01/android-sec-AndroidManifest/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://dalufan.com/2016/01/01/android-sec-AndroidManifest/　　作者: 大路" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2016/01/03/android-activity-onActivityResult/">
+                    Activity中onActivityResult存在的坑
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2015/12/22/android-webview-upload-file/">
+                    Webview中上传文件支持全解析
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-简述"><span class="toc-number">1.</span> <span class="toc-text">0x01 简述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-实现方案"><span class="toc-number">2.</span> <span class="toc-text">0x02 实现方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-AXML文件格式"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 AXML文件格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2修改AXML的注意事项"><span class="toc-number">2.2.</span> <span class="toc-text">2.2修改AXML的注意事项</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-修改AXML步骤"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 修改AXML步骤</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-代码说明"><span class="toc-number">3.</span> <span class="toc-text">0x03 代码说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-使用方法"><span class="toc-number">4.</span> <span class="toc-text">0x04 使用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x05-下一步工作"><span class="toc-number">5.</span> <span class="toc-text">0x05 下一步工作</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+        <div class="bdsharebuttonbox">
+            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
+        </div>
+        <script>
+            window._bd_share_config={
+                "common":{"bdSnsKey":{},"bdText":"AndroidManifest Ambiguity方案原理及代码　| 道听途说　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        </script>
+    
+
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2016/01/01/android-sec-AndroidManifest/" data-title="AndroidManifest Ambiguity方案原理及代码" data-url="http://dalufan.com/2016/01/01/android-sec-AndroidManifest/"></div>
+    <script>
+        var duoshuoQuery = {short_name:"dalufan"};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2016/01/03/android-activity-onActivityResult/" title="上一篇: Activity中onActivityResult存在的坑">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2015/12/22/android-webview-upload-file/" title="下一篇: Webview中上传文件支持全解析">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/07/android-startActivityForResult-FragmentActivity-Fragment/">彻底搞懂startActivityForResult在FragmentActivity和Fragment中的异同</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/03/android-dynamicicon-example/">android动态更新APP图标和label</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/android-ViewPager-Fragment-LazyLoad/">ViewPager+Fragment LazyLoad 最优解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/08/java-singleton-good-write/">Java更好的单例写法</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/02/android-recycleview-useage-issues/">RecycleView的使用及坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/android-click-icon-restart/">防止App在后台运行，点击应用桌面图标重新启动</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/02/android-some-little-knowledge/">Android的一些开发细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/30/mysql-join-usage/">图解SQL的Join</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/26/swift-string-create-class/">Swift:通过字符串创建类对象  </a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/25/android-fragment-backpress/">Fragment监听返回键事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/08/ios-constraint-autolayout-autoresizing/">autolayout和autoresizing的使用注意事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/xcode-eclipse-key-xcodeKit/">xcode中快速删除拷贝一行，like eclipse</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/09/ios-imageNamed-imageWithContentsOfFile-diff/">imageNamed和imageWithContentsOfFile的使用和区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/07/android-rotate-imageview/">Android 自定义可旋转的ImageView</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/19/mysql-case-when-and-left-join-demo/">mysql中UNIQUE、判断、组合查找的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/27/android-fragment-state-saving-best-practices/">fragment状态保存最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/21/android-valueanimator-in-diy-view/">ValueAnimator在自定义View中的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/03/mysql-base-usage-03/">《mysql 必知必会》读书笔记三（21-30）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/30/mysql-base-usage-02/">《mysql 必知必会》读书笔记二（13-20）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/28/mysql-base-usage-01/">《mysql 必知必会》读书笔记一（1-12）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/21/android-listview-usage/">android listview的一些技巧</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/11/android-react-native-learn-day02/">react-native学习笔记二</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/26/android-react-native-learn-day01/">react-native学习笔记一</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/17/android-widget-imageview-1/">自定义ImageView系列第一版</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/26/web-maven-springmvc-start-learn/">使用maven配置springmvc的过程中遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/04/23/java-uml-learn/">UML中的五种关系</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/17/android-art-of-android-deveopment-note-2/">《Android 开发艺术探索》读书笔记--第二章 IPC机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/03/13/effective-java-learn-note-10-01/">《Effective Java》读书笔记--第十章 并发（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/20/android-art-of-android-deveopment-note-12/">《Android 开发艺术探索》读书笔记--第十二章 Bitmap 第十五章 性能优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/11/thinking-of-getting-the-current-activity-in-android/">如何获取当前Activity</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/08/workflow-feature-branch-Pull-Request/">WorkFlow--功能分支工作流(Pull Requests)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/02/02/workflow-Pull-Request/">Pull Requests的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/20/android-art-of-android-deveopment-note-10/">《Android 开发艺术探索》读书笔记--第十章Android的消息机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android-art-of-android-deveopment-note-4/">《Android 开发艺术探索》读书笔记--第四章 View的工作原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/workflow-centralized-git-rebase/">WorkFlow--集中式工作流(git rebase)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/03/android-activity-onActivityResult/">Activity中onActivityResult存在的坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/01/android-sec-AndroidManifest/">AndroidManifest Ambiguity方案原理及代码</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/22/android-webview-upload-file/">Webview中上传文件支持全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/20/android-webview-issues/">Webview中的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/18/android-art-of-android-deveopment-note-3/">《Android 开发艺术探索》读书笔记--第三章View事件体系</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/12/02/java-JSONObject-Stub/">java工程中调用Android库出现“Stub!”错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-optimization-thread-ThreadPoolExecutor/">android性能优化--使用线程池处理异步任务</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/26/android-View-LinearGradient/">android中使用LinearGradient实现文字闪烁的效果</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/24/android-Activity-launch-learn/">Activity启动过程全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/23/android-DownloadManager-usage/">android中使用DownloadManager来下载</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/22/android-context-learn/">Android Context完全解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-achievement/">Android项目重构的整理-实现篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-view/">Android项目重构的整理-界面篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/21/android-reconstruction-architecture/">Android项目重构的整理-架构篇</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-webview-js-safe-message/">Webview与Js之间的另一种交互</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/20/android-error-UncaughtExceptionHandler/">android中处理崩溃的一般方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/18/android-mat-usage/">MAT的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/17/android-gc-leak/">android 内存泄露以及GC的相关知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/12/android-onSaveInstanceState-learn/">Activity和Fragement中onSaveInstanceState()的使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/11/07/app-hearsay/">道听途说</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can't create handler inside thread that has not</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/10/20/android-view-issues/">android中view相关的问题及解决</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/18/android-dex-inject-learn/">android dex注入实现详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/17/android-canvas-draw/">android中canvas的一些属性和用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/11/android-onTouchEvent/">Android触摸事件的响应机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/10/free-mail-mailinator/">mailinator 免费邮箱的使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-setOnPageChangeListener/">ViewPager的setOnPageChangeListener方法详解 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/08/android-Activity-ActionBarActivity-AppCompatActivity/">android中关于Activity/ActionBarActivity/AppCompatActivity的区分与理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/07/android-BitmapFactory-OutOfMemoryError/">android BitmapFactory的OutOfMemoryError的解决方案 </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/03/git-android-as/">在android Studio 和 Eclipse 的 git 插件操作'代码提交'以及'代码冲突' </a></li><li class="post-list-item"><a class="post-list-link" href="/2015/09/01/android-QR-changesize/">Zxing二维码扫描框大小修改</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/retrofit-usage/">Retrofit 中文文档</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/28/git-reset-soft-mixed-hard/">Difference between git reset soft, mixed and hard</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/27/android-so-usage/">关于android的.so文件你所需要知道的</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/26/android-EmailAutoCompleteTextView/">android 邮箱地址自动补全</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/24/android-setCompoundDrawables-setCompoundDrawablesWithIntrinsicBounds/">android setCompoundDrawables与setCompoundDrawablesWithIntrinsicBounds的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/08/20/android-Drawable-usage/">android Drawable 那些不为人知的高效用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/29/hello-world/">Hexo的使用方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/10/eclipse-cannot-open-git-upload-pack/">eclipse git push和pull出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/07/01/android-listview-ontouchevent/">android中对GridView， ListView等滚动控件的Touch事件onInterceptTouchEvent，onTouchEvent理解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/06/29/android-javascript-exchange/">Android与Javascript交互概要</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/21/android-performance-optimization-SparseArray/">android应用性能优化中使用SparseArray替代HashMap</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/12/java-regex-useage/">Java正则表达式的一般使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/05/05/android-motionevent/">MotionEvent中getX()、getRawX()等位置说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/26/android-service-download-singlethread/">android中Service断点下载-单线程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/18/service-not-be-killed/">android保证Service不被杀掉的方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/12/android-Intent-PendingIntent/">android中Intent和PendingIntent的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/10/android-AlarmManager/">android中AlarmManager的说明例子</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/android-handler-learn/">android中Handler的使用Tips</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/14/android-sqlite-err/">sqlite遇到的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/14/android-sqlite-learn/">sqlite的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/11/android-thread-volatile-synchronized-final/">进程通信中volatile, synchronized, final的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/17/java-Process/">java.lang.Process 阻塞问题 & Runtime.exec()的陷阱</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/16/android-excel/">android操作Excel文件</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/14/android-Smail-learn/">Smail语法</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-ContentObserver-learn/">android中ContentObserver类详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/01/12/android-BroadCast-Security/">android广播中的安全问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/30/android-app-usagestats/">android 获取各应用的运行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/29/ubuntu-android-driver/">ubuntu下解决不能识别android设备</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-View-learn-three/">android中简单自定义view③</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/25/android-DownloadManager/">android DownloadManager广播事件：下载完成、通知栏点击事件</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-one/">android中View的使用及解释①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/23/android-View-learn-two/">android中View的使用及解释②</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-ContentProvider-learn/">android ContentProvider基本使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/21/android-Uri-learn/">android中Uri的使用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/12/20/android-mediaplayer-usage/">android MediaPlayer基本使用方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/30/net-get-post/">GET请求和POST请求的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/28/android-sec-commonly/">android一些安全事项</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-Intent/">android中Intent使用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/27/android-BroadcastReceiver/">android中BroadcastReceiver应用详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-activity-task/">android中Activity的task</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/25/android-activity-launchMode/">android中Activity的四种launchMode</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/18/android-permission/">android声明和使用权限</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/14/android-view-IllegalArgumentException/">View not attached to window manager</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/12/httpclient-learn-conclusion/">httpclient使用总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/10/android-MediaRecorder-stop-error/">android录音时stop出错</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/11/08/android-xutils-http-learn/">xutils中HttpUtils模块分析①</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/10/20/android-error/">android异常/错误集</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/30/java-Generics/">java中泛型Generics的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/26/java-ThreadPoolExecutor/">android里面ThreadPoolExecutor的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/24/java-volatile-static/">java中volatile和static的区别 </a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/21/java-shutdown/">线程池shutdown()方法和shutdownNow()区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-volatile/">java 里面volatile的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/19/java-AtomicInteger/">java 里面AtomicInteger的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/07/java-string-format/">java中string.format方法使用介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/06/java-Serializable/">java 里面Serializable的说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/05/eclipse-git-merge/">eclipse中git解决冲突</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/04/java-enum-final/">java中枚举和常量定义的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/09/03/java-enum/">java中enum的用法详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/05/17/git-api/">git常用命令及思维导图</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/java-trans/">java是传值还是传引用</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/03/25/session-cookie/">详解COOKIE与SESSION的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2014/02/16/string-stringbuffer/">String和StringBuffer的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/08/24/java-reflection/">Java反射Demo</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/ubuntu_order/">ubuntu命令学习记录</a></li><li class="post-list-item"><a class="post-list-link" href="/2013/05/17/sublime-text-2/">Sublime Text 2使用简介</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2013-2017 大路
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
