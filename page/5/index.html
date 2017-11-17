@@ -414,10 +414,10 @@
 
 
   
-    <article id="post-android-ScrollView-fill" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-TextView-show-scrollbar" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/11/30/android-ScrollView-fill/" class="article-date">
+      <a href="/2015/11/30/android-TextView-show-scrollbar/" class="article-date">
       <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
 </a>
 
@@ -433,7 +433,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a>
+      <a class="article-title" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a>
     </h1>
   
 
@@ -443,76 +443,12 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>一个开源支持ListView、GridView、RecyclerView等滚动的方法<a href="https://github.com/EverythingMe/overscroll-decor" target="_blank" rel="external">链接</a></p>
-<p>最近在开发项目中遇到一个问题，布局高度在某些国产酷派小屏幕手机上高度不够全部显示，于是使用了ScrollView嵌套LinearLayout，但问题又出现了，在大屏幕手机如三星note3手机上下面会留白，问题的解决办法是在第一层LinearLayout里面嵌套多个LinearLayout，最重要的是将ScrollView中设置<code>android:fillViewport=&quot;true&quot;</code>。</p>
-<p>当ScrollView里的元素想填满ScrollView时，使用”fill_parent”是不管用的，必需为ScrollView设置：android:fillViewport=”true”。</p>
-<p>当ScrollView没有android:fillViewport=”true”时, 里面的元素(比如LinearLayout)会按照wrap_content来计算(不论它是否设了”fill_parent”),而如果LinearLayout的元素设置了fill_parent,那么也是不管用的，因为LinearLayout依赖里面的元素，而里面的元素又依赖LinearLayout,这样自相矛盾。所以里面元素设置了fill_parent，也会当做wrap_content来计算。</p>
-<hr>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/android/">android</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scrollView/">scrollView</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-android-network-type" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/11/30/android-network-type/" class="article-date">
-      <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>很多时候需要先判断当前用户的网络，才会继续之后的一些处理逻辑。但网络类型获取这一块，我用我自己的的手机调试时遇到一些问题，这里记录一下。</p>
-<p>网络类型对应的<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/telephony/TelephonyManager.java#TelephonyManager">源码</a></p>
+              <p>接到任务说，为了能让用户知道，Scrollview中的文字没有展示完，需要一直显示滚动条给予提示；</p>
+<p>解决方法：</p>
+<p>需要在外层的Srcollview中添加</p>
+<p><code>android:fadeScrollbars=&quot;false&quot; android:scrollbarAlwaysDrawVerticalTrack=&quot;true&quot;</code></p>
+<p>如果需要文字滚动到最底端，只需要再加上</p>
+<p><code>tv_show.setGravity(Gravity.BOTTOM);</code></p>
           
       
     </div>
@@ -527,88 +463,12 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/knowledge/">knowledge</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TextView/">TextView</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2015/11/30/android-network-type/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-android-open-eventbus-usage" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/11/30/android-open-eventbus-usage/" class="article-date">
-      <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="why"><a href="#why" class="headerlink" title="why"></a>why</h3><p>使用EventBus不仅使代码变得清晰，而且增强了类型安全（type-safe）。当用Intent传递数据时，在编译时并不能检查出所设的extra类型与收到时的类型一致。所以一个很常见的错误便是你或者你团队中的其他人改变了Intent所传递的数据，但忘记了对全部的接收器（receiver）进行更新。这种错误在编译时是无法被发现的，只有在运行时才会发现问题。</p>
-<p>而使用EventBus所传递的消息则是通过你所定义的Event类。由于接收者方法是直接与这些类实例打交道，所以所有的数据均可以进行类型检查，这样任何由于类型不一致所导致的错误都可以在编译时刻被发现。</p>
-<p>另外就是你的Event类可以定义成任何类型。我通常会为了表示事件而显式地创建明确命名的类，你也通过EventBus发送/接收任何类。通过这种方法，你就不必受限于那些只能添加到Intent extras中的简单数据类型了。例如，你可以发送一个和ORM(Object Relational Mapping，对象关系映射，简称ORM，或O/RM，或O/R mapping)模型类实例，并且在接收端直接处理与ORM操作相关的类实例。</p>
-<p>本文主要讲述以下内容:</p>
-<ol>
-<li>EventBus的一般使用</li>
-<li>EventBus替代Bundle</li>
-<li>EventBus替代AsyncTask, Loader和Executor</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/android/">android</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EventBus/">EventBus</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2015/11/30/android-open-eventbus-usage/#more">阅读全文 >></a>
+          <a href="/2015/11/30/android-TextView-show-scrollbar/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -703,10 +563,10 @@
 
 
   
-    <article id="post-android-TextView-show-scrollbar" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-open-eventbus-usage" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/11/30/android-TextView-show-scrollbar/" class="article-date">
+      <a href="/2015/11/30/android-open-eventbus-usage/" class="article-date">
       <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
 </a>
 
@@ -722,7 +582,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a>
+      <a class="article-title" href="/2015/11/30/android-open-eventbus-usage/">android中EventBus的使用</a>
     </h1>
   
 
@@ -732,12 +592,15 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>接到任务说，为了能让用户知道，Scrollview中的文字没有展示完，需要一直显示滚动条给予提示；</p>
-<p>解决方法：</p>
-<p>需要在外层的Srcollview中添加</p>
-<p><code>android:fadeScrollbars=&quot;false&quot; android:scrollbarAlwaysDrawVerticalTrack=&quot;true&quot;</code></p>
-<p>如果需要文字滚动到最底端，只需要再加上</p>
-<p><code>tv_show.setGravity(Gravity.BOTTOM);</code></p>
+              <h3 id="why"><a href="#why" class="headerlink" title="why"></a>why</h3><p>使用EventBus不仅使代码变得清晰，而且增强了类型安全（type-safe）。当用Intent传递数据时，在编译时并不能检查出所设的extra类型与收到时的类型一致。所以一个很常见的错误便是你或者你团队中的其他人改变了Intent所传递的数据，但忘记了对全部的接收器（receiver）进行更新。这种错误在编译时是无法被发现的，只有在运行时才会发现问题。</p>
+<p>而使用EventBus所传递的消息则是通过你所定义的Event类。由于接收者方法是直接与这些类实例打交道，所以所有的数据均可以进行类型检查，这样任何由于类型不一致所导致的错误都可以在编译时刻被发现。</p>
+<p>另外就是你的Event类可以定义成任何类型。我通常会为了表示事件而显式地创建明确命名的类，你也通过EventBus发送/接收任何类。通过这种方法，你就不必受限于那些只能添加到Intent extras中的简单数据类型了。例如，你可以发送一个和ORM(Object Relational Mapping，对象关系映射，简称ORM，或O/RM，或O/R mapping)模型类实例，并且在接收端直接处理与ORM操作相关的类实例。</p>
+<p>本文主要讲述以下内容:</p>
+<ol>
+<li>EventBus的一般使用</li>
+<li>EventBus替代Bundle</li>
+<li>EventBus替代AsyncTask, Loader和Executor</li>
+</ol>
           
       
     </div>
@@ -752,13 +615,150 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TextView/">TextView</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EventBus/">EventBus</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2015/11/30/android-TextView-show-scrollbar/#more">阅读全文 >></a>
+          <a href="/2015/11/30/android-open-eventbus-usage/#more">阅读全文 >></a>
         </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-android-network-type" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/11/30/android-network-type/" class="article-date">
+      <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/11/30/android-network-type/">Android判断用户的网络类型(2/3/4G、wifi)</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>很多时候需要先判断当前用户的网络，才会继续之后的一些处理逻辑。但网络类型获取这一块，我用我自己的的手机调试时遇到一些问题，这里记录一下。</p>
+<p>网络类型对应的<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/5.1.0_r1/android/telephony/TelephonyManager.java#TelephonyManager">源码</a></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/knowledge/">knowledge</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2015/11/30/android-network-type/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-android-ScrollView-fill" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/11/30/android-ScrollView-fill/" class="article-date">
+      <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>一个开源支持ListView、GridView、RecyclerView等滚动的方法<a href="https://github.com/EverythingMe/overscroll-decor" target="_blank" rel="external">链接</a></p>
+<p>最近在开发项目中遇到一个问题，布局高度在某些国产酷派小屏幕手机上高度不够全部显示，于是使用了ScrollView嵌套LinearLayout，但问题又出现了，在大屏幕手机如三星note3手机上下面会留白，问题的解决办法是在第一层LinearLayout里面嵌套多个LinearLayout，最重要的是将ScrollView中设置<code>android:fillViewport=&quot;true&quot;</code>。</p>
+<p>当ScrollView里的元素想填满ScrollView时，使用”fill_parent”是不管用的，必需为ScrollView设置：android:fillViewport=”true”。</p>
+<p>当ScrollView没有android:fillViewport=”true”时, 里面的元素(比如LinearLayout)会按照wrap_content来计算(不论它是否设了”fill_parent”),而如果LinearLayout的元素设置了fill_parent,那么也是不管用的，因为LinearLayout依赖里面的元素，而里面的元素又依赖LinearLayout,这样自相矛盾。所以里面元素设置了fill_parent，也会当做wrap_content来计算。</p>
+<hr>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scrollView/">scrollView</a></li></ul>
+    </div>
+
       
       <div class="clearfix"></div>
     </div>
