@@ -268,77 +268,6 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-android-Intent" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2014/11/27/android-Intent/" class="article-date">
-      <time datetime="2014-11-27T10:44:12.000Z" itemprop="datePublished">2014-11-27</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/11/27/android-Intent/">android中Intent使用详解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>简单来说，Intent是系统各组件之间进行数据传递的数据负载者。当我们需要做一个调用动作，我们就可以通过Intent告诉android系统来完成这个过程，Intent就是调用通知的一种操作。<br>Intent有几个重要的属性，下面我们将会逐一介绍：</p>
-<h3 id="0-android-exported"><a href="#0-android-exported" class="headerlink" title="0.android:exported"></a>0.android:exported</h3><p>一个Activity组件能否被外部应用启动取决于此属性，设置为true时Activity可以被外部应用启动，设置为false则不能，此时Activity只能被自身app启动。（同user id或者root也能启动）</p>
-<p><code>没有配置intent-filter属性exported默认为false</code>（没有filter只能通过明确的类名来启动activity故相当于只有程序本身能启动），<code>配置了intent-filter属性exported默认为true</code>。</p>
-<p>exported属性只是用于限制Activity是否暴露给其他app，通过配置文件中的权限申明也可以限制外部启动activity。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/android/">android</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Intent/">Intent</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2014/11/27/android-Intent/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-android-BroadcastReceiver" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -407,11 +336,11 @@
 
 
   
-    <article id="post-android-Service" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-Intent" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2014/11/26/android-Service/" class="article-date">
-      <time datetime="2014-11-26T10:44:12.000Z" itemprop="datePublished">2014-11-26</time>
+      <a href="/2014/11/27/android-Intent/" class="article-date">
+      <time datetime="2014-11-27T10:44:12.000Z" itemprop="datePublished">2014-11-27</time>
 </a>
 
 
@@ -426,7 +355,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a>
+      <a class="article-title" href="/2014/11/27/android-Intent/">android中Intent使用详解</a>
     </h1>
   
 
@@ -436,8 +365,10 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h3 id="0-Demo"><a href="#0-Demo" class="headerlink" title="0.Demo"></a>0.Demo</h3><p><a href="/article_files/ServiceDemo.rar">下载</a></p>
-<h3 id="1-Service生命周期"><a href="#1-Service生命周期" class="headerlink" title="1.Service生命周期"></a>1.Service生命周期</h3><p>Service生命周期可以从两种启动Service的模式开始讲起，分别是context.startService()和context.bindService()。</p>
+              <p>简单来说，Intent是系统各组件之间进行数据传递的数据负载者。当我们需要做一个调用动作，我们就可以通过Intent告诉android系统来完成这个过程，Intent就是调用通知的一种操作。<br>Intent有几个重要的属性，下面我们将会逐一介绍：</p>
+<h3 id="0-android-exported"><a href="#0-android-exported" class="headerlink" title="0.android:exported"></a>0.android:exported</h3><p>一个Activity组件能否被外部应用启动取决于此属性，设置为true时Activity可以被外部应用启动，设置为false则不能，此时Activity只能被自身app启动。（同user id或者root也能启动）</p>
+<p><code>没有配置intent-filter属性exported默认为false</code>（没有filter只能通过明确的类名来启动activity故相当于只有程序本身能启动），<code>配置了intent-filter属性exported默认为true</code>。</p>
+<p>exported属性只是用于限制Activity是否暴露给其他app，通过配置文件中的权限申明也可以限制外部启动activity。</p>
           
       
     </div>
@@ -452,12 +383,12 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Service/">Service</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Intent/">Intent</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2014/11/26/android-Service/#more">阅读全文 >></a>
+          <a href="/2014/11/27/android-Intent/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -531,6 +462,75 @@
       
         <p class="article-more-link">
           <a href="/2014/11/26/android-activity-task/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-android-Service" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2014/11/26/android-Service/" class="article-date">
+      <time datetime="2014-11-26T10:44:12.000Z" itemprop="datePublished">2014-11-26</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/11/26/android-Service/">android中Service的详细使用说明</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="0-Demo"><a href="#0-Demo" class="headerlink" title="0.Demo"></a>0.Demo</h3><p><a href="/article_files/ServiceDemo.rar">下载</a></p>
+<h3 id="1-Service生命周期"><a href="#1-Service生命周期" class="headerlink" title="1.Service生命周期"></a>1.Service生命周期</h3><p>Service生命周期可以从两种启动Service的模式开始讲起，分别是context.startService()和context.bindService()。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Service/">Service</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2014/11/26/android-Service/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
