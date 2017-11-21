@@ -268,6 +268,76 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-android-error-cannot-create-handler-inside" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/10/20/android-error-cannot-create-handler-inside/" class="article-date">
+      <time datetime="2015-10-20T10:44:12.000Z" itemprop="datePublished">2015-10-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can&#39;t create handler inside thread that has not</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h3 id="例子："><a href="#例子：" class="headerlink" title="例子："></a>例子：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">               </div><div class="line">               <span class="meta">@Override</span></div><div class="line">               <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                    <span class="comment">// TODO Auto-generated method stub</span></div><div class="line">                    </div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                         Thread.sleep(<span class="number">1000</span>);</div><div class="line">                         Toast.makeText(getApplicationContext(), <span class="string">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span>, <span class="number">0</span>).show();</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                         <span class="comment">// TODO Auto-generated catch block</span></div><div class="line">                         e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    </div><div class="line">               &#125;</div><div class="line">          &#125;).start();</div></pre></td></tr></table></figure>
+<h3 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h3><p>在Android中不允许Activity里新启动的线程访问该Activity里的UI组件，这样会导致新启动的线程无法改变UI组件的属性值。所以才会出现java.lang.RuntimeException: Can’t create handler inside thread that has not called Looper.prepare()异常。</p>
+<h3 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h3><p>然而，我们实际需要，在很多时候都需要异步获取数据刷新UI控件，这时候采取的方法就是Handler消息机制和AsyncTask异步任务两种解决方法。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/android/">android</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/error/">error</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2015/10/20/android-error-cannot-create-handler-inside/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-android-view-issues" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -324,76 +394,6 @@
       
         <p class="article-more-link">
           <a href="/2015/10/20/android-view-issues/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-android-error-cannot-create-handler-inside" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/10/20/android-error-cannot-create-handler-inside/" class="article-date">
-      <time datetime="2015-10-20T10:44:12.000Z" itemprop="datePublished">2015-10-20</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/10/20/android-error-cannot-create-handler-inside/">android运行提示java.lang.RuntimeException: Can&#39;t create handler inside thread that has not</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="例子："><a href="#例子：" class="headerlink" title="例子："></a>例子：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">               </div><div class="line">               <span class="meta">@Override</span></div><div class="line">               <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                    <span class="comment">// TODO Auto-generated method stub</span></div><div class="line">                    </div><div class="line">                    <span class="keyword">try</span> &#123;</div><div class="line">                         Thread.sleep(<span class="number">1000</span>);</div><div class="line">                         Toast.makeText(getApplicationContext(), <span class="string">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span>, <span class="number">0</span>).show();</div><div class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                         <span class="comment">// TODO Auto-generated catch block</span></div><div class="line">                         e.printStackTrace();</div><div class="line">                    &#125;</div><div class="line">                    </div><div class="line">               &#125;</div><div class="line">          &#125;).start();</div></pre></td></tr></table></figure>
-<h3 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h3><p>在Android中不允许Activity里新启动的线程访问该Activity里的UI组件，这样会导致新启动的线程无法改变UI组件的属性值。所以才会出现java.lang.RuntimeException: Can’t create handler inside thread that has not called Looper.prepare()异常。</p>
-<h3 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h3><p>然而，我们实际需要，在很多时候都需要异步获取数据刷新UI控件，这时候采取的方法就是Handler消息机制和AsyncTask异步任务两种解决方法。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/android/">android</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/error/">error</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2015/10/20/android-error-cannot-create-handler-inside/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

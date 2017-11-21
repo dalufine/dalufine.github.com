@@ -414,10 +414,10 @@
 
 
   
-    <article id="post-android-TextView-show-scrollbar" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-ScrollView-fill" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/11/30/android-TextView-show-scrollbar/" class="article-date">
+      <a href="/2015/11/30/android-ScrollView-fill/" class="article-date">
       <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
 </a>
 
@@ -433,7 +433,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a>
+      <a class="article-title" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a>
     </h1>
   
 
@@ -443,13 +443,12 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>接到任务说，为了能让用户知道，Scrollview中的文字没有展示完，需要一直显示滚动条给予提示；</p>
-<p>解决方法：</p>
-<p>需要在外层的Srcollview中添加</p>
-<p><code>android:fadeScrollbars=&quot;false&quot; android:scrollbarAlwaysDrawVerticalTrack=&quot;true&quot;</code></p>
-<p>如果需要文字滚动到最底端，只需要再加上</p>
-<p><code>tv_show.setGravity(Gravity.BOTTOM);</code></p>
-          
+        <p>一个开源支持ListView、GridView、RecyclerView等滚动的方法<a href="https://github.com/EverythingMe/overscroll-decor" target="_blank" rel="external">链接</a></p>
+<p>最近在开发项目中遇到一个问题，布局高度在某些国产酷派小屏幕手机上高度不够全部显示，于是使用了ScrollView嵌套LinearLayout，但问题又出现了，在大屏幕手机如三星note3手机上下面会留白，问题的解决办法是在第一层LinearLayout里面嵌套多个LinearLayout，最重要的是将ScrollView中设置<code>android:fillViewport=&quot;true&quot;</code>。</p>
+<p>当ScrollView里的元素想填满ScrollView时，使用”fill_parent”是不管用的，必需为ScrollView设置：android:fillViewport=”true”。</p>
+<p>当ScrollView没有android:fillViewport=”true”时, 里面的元素(比如LinearLayout)会按照wrap_content来计算(不论它是否设了”fill_parent”),而如果LinearLayout的元素设置了fill_parent,那么也是不管用的，因为LinearLayout依赖里面的元素，而里面的元素又依赖LinearLayout,这样自相矛盾。所以里面元素设置了fill_parent，也会当做wrap_content来计算。</p>
+<hr>
+
       
     </div>
     
@@ -463,13 +462,9 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TextView/">TextView</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scrollView/">scrollView</a></li></ul>
     </div>
 
-      
-        <p class="article-more-link">
-          <a href="/2015/11/30/android-TextView-show-scrollbar/#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -708,10 +703,10 @@
 
 
   
-    <article id="post-android-ScrollView-fill" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-TextView-show-scrollbar" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/11/30/android-ScrollView-fill/" class="article-date">
+      <a href="/2015/11/30/android-TextView-show-scrollbar/" class="article-date">
       <time datetime="2015-11-30T10:44:12.000Z" itemprop="datePublished">2015-11-30</time>
 </a>
 
@@ -727,7 +722,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/30/android-ScrollView-fill/">android中ScrollView不能被完全填充</a>
+      <a class="article-title" href="/2015/11/30/android-TextView-show-scrollbar/">android TextView始终显示滚动条的方法</a>
     </h1>
   
 
@@ -737,12 +732,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>一个开源支持ListView、GridView、RecyclerView等滚动的方法<a href="https://github.com/EverythingMe/overscroll-decor" target="_blank" rel="external">链接</a></p>
-<p>最近在开发项目中遇到一个问题，布局高度在某些国产酷派小屏幕手机上高度不够全部显示，于是使用了ScrollView嵌套LinearLayout，但问题又出现了，在大屏幕手机如三星note3手机上下面会留白，问题的解决办法是在第一层LinearLayout里面嵌套多个LinearLayout，最重要的是将ScrollView中设置<code>android:fillViewport=&quot;true&quot;</code>。</p>
-<p>当ScrollView里的元素想填满ScrollView时，使用”fill_parent”是不管用的，必需为ScrollView设置：android:fillViewport=”true”。</p>
-<p>当ScrollView没有android:fillViewport=”true”时, 里面的元素(比如LinearLayout)会按照wrap_content来计算(不论它是否设了”fill_parent”),而如果LinearLayout的元素设置了fill_parent,那么也是不管用的，因为LinearLayout依赖里面的元素，而里面的元素又依赖LinearLayout,这样自相矛盾。所以里面元素设置了fill_parent，也会当做wrap_content来计算。</p>
-<hr>
-
+              <p>接到任务说，为了能让用户知道，Scrollview中的文字没有展示完，需要一直显示滚动条给予提示；</p>
+<p>解决方法：</p>
+<p>需要在外层的Srcollview中添加</p>
+<p><code>android:fadeScrollbars=&quot;false&quot; android:scrollbarAlwaysDrawVerticalTrack=&quot;true&quot;</code></p>
+<p>如果需要文字滚动到最底端，只需要再加上</p>
+<p><code>tv_show.setGravity(Gravity.BOTTOM);</code></p>
+          
       
     </div>
     
@@ -756,9 +752,13 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scrollView/">scrollView</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TextView/">TextView</a></li></ul>
     </div>
 
+      
+        <p class="article-more-link">
+          <a href="/2015/11/30/android-TextView-show-scrollbar/#more">阅读全文 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>
