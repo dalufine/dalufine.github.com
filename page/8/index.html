@@ -336,10 +336,10 @@
 
 
   
-    <article id="post-android-handler-gc" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-Scrollview-RelativeLayout" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/08/28/android-handler-gc/" class="article-date">
+      <a href="/2015/08/28/android-Scrollview-RelativeLayout/" class="article-date">
       <time datetime="2015-08-28T10:44:12.000Z" itemprop="datePublished">2015-08-28</time>
 </a>
 
@@ -355,7 +355,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a>
+      <a class="article-title" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a>
     </h1>
   
 
@@ -365,8 +365,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h3 id="0x01-写在前面"><a href="#0x01-写在前面" class="headerlink" title="0x01 写在前面"></a>0x01 写在前面</h3><p>常见的Handler的用法但是可能导致内存泄露,比如在旋转屏幕时该Activity重新绘制. 但是因为mHandler发送了一个延迟消息,所以消息队列持有mHandler对象,又由于new Runnable(){}持有外部类MainActivity的引用,以Activity所占内存并不能向期望的那样被回收,这样就可能会造成内存泄漏。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Handler mHandler = <span class="keyword">new</span> Handler() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">        mImageView.setImageBitmap(mBitmap);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+              <p>ScrollView滚动视图是指当拥有很多内容、屏幕显示不完时、需要通过滚动跳来显示的视图、Scrollview的一般用法如下、以下代码在Scrollview里面放了一个RelativeLayout、并且是设置为android:layout_height=”match_parent”填充全屏的、RelativeLayout里面放置了一个TextView背景设为了一张图片、按照代码理解、图片应该是居于屏幕的最下方的。</p>
           
       
     </div>
@@ -381,12 +380,12 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gc/">gc</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/View/">View</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2015/08/28/android-handler-gc/#more">阅读全文 >></a>
+          <a href="/2015/08/28/android-Scrollview-RelativeLayout/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -542,10 +541,10 @@
 
 
   
-    <article id="post-android-Scrollview-RelativeLayout" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-android-handler-gc" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2015/08/28/android-Scrollview-RelativeLayout/" class="article-date">
+      <a href="/2015/08/28/android-handler-gc/" class="article-date">
       <time datetime="2015-08-28T10:44:12.000Z" itemprop="datePublished">2015-08-28</time>
 </a>
 
@@ -561,7 +560,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/28/android-Scrollview-RelativeLayout/">ScrollView中RelativeLayout设置match_parent无法填充满屏幕</a>
+      <a class="article-title" href="/2015/08/28/android-handler-gc/">Handler的内存泄露及解决方法</a>
     </h1>
   
 
@@ -571,7 +570,8 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>ScrollView滚动视图是指当拥有很多内容、屏幕显示不完时、需要通过滚动跳来显示的视图、Scrollview的一般用法如下、以下代码在Scrollview里面放了一个RelativeLayout、并且是设置为android:layout_height=”match_parent”填充全屏的、RelativeLayout里面放置了一个TextView背景设为了一张图片、按照代码理解、图片应该是居于屏幕的最下方的。</p>
+              <h3 id="0x01-写在前面"><a href="#0x01-写在前面" class="headerlink" title="0x01 写在前面"></a>0x01 写在前面</h3><p>常见的Handler的用法但是可能导致内存泄露,比如在旋转屏幕时该Activity重新绘制. 但是因为mHandler发送了一个延迟消息,所以消息队列持有mHandler对象,又由于new Runnable(){}持有外部类MainActivity的引用,以Activity所占内存并不能向期望的那样被回收,这样就可能会造成内存泄漏。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Handler mHandler = <span class="keyword">new</span> Handler() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">        mImageView.setImageBitmap(mBitmap);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
           
       
     </div>
@@ -586,12 +586,12 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/View/">View</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gc/">gc</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2015/08/28/android-Scrollview-RelativeLayout/#more">阅读全文 >></a>
+          <a href="/2015/08/28/android-handler-gc/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
